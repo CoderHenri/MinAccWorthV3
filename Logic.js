@@ -419,15 +419,9 @@ function PriceWriter() {
 
 function SelectAddress() {
 
-    /*
-    //quick and dirty hack, since otherwise loading in a new account adds it to the one calculated beforehand
-    if(Sitereloader == 1) {
-        window.location.href=window.location.href;
-    }
-
-    Sitereloader = 1;
-*/
-    FirstOnclickCheck = 0; 
+    ETHWalletAxie = [];
+    ETHWalletLand = [];
+    ETHWalletItem = [];
   
     var txt;
     var PopUp = prompt("Please enter your ETH Address with your Axies:", "0x...");
@@ -442,6 +436,8 @@ function SelectAddress() {
 
     }
     document.getElementById("ETHAddress").innerHTML = txt;
+    var L = document.getElementById("lds-hourglass");
+    L.style.display = "inline-block";
 }
 
 async function GetAccountData(ETHAddy) {

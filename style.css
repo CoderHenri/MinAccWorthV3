@@ -201,7 +201,7 @@
 #lds-hourglass {
     margin-left: 50%;
     margin-right: 50%;
-    display: inline-block;
+    display: none;
     position: relative;
     width: 80px;
     height: 80px;
