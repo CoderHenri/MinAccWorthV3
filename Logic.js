@@ -5,6 +5,12 @@ function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function PriceDisplayHuman(num) {
+    num = num * Math.pow(10, -18);
+    num = Math.round((num + Number.EPSILON) * 10000) / 10000;
+    return num;
+}
+
 async function ReadTextFile() {
 
     LandGridAll = await AsyncTextReader();
@@ -54,8 +60,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        console.log(data);
-        QuerySaver(data, "NormalAxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //OriginAxiePrice
@@ -75,9 +80,27 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
+        FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
+    });
+
+    //JapAxiePrice
+    await  fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+            
+        body: JSON.stringify({
+            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"region":"japan","classes":null,"stages":null,"numMystic":null,"pureness":null,"title":[],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
+            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
+    })
+    .then(function(response) { 
+        return response.json(); 
+    })
         
-        
-        QuerySaver(data, "OriginAxiePrice", "Axie");
+    .then(function(data) {
+        FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //MEO1AxiePrice
@@ -97,9 +120,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "MEO1AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //MEO2AxiePrice
@@ -119,9 +140,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "MEO2AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //Mystic1AxiePrice
@@ -141,9 +160,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "Mystic1AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //Mystic2AxiePrice
@@ -163,9 +180,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "Mystic2AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //Mystic3AxiePrice
@@ -185,7 +200,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "Mystic3AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //Mystic4AxiePrice
@@ -205,10 +220,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        if(data.data.axies.results.length == 0){
-            data = "NAN";
-        }
-        QuerySaver(data, "Mystic4AxiePrice", "Axie");
+        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
     });
 
     //Query Land Floor Data
@@ -229,7 +241,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "LandGenesisPrice", "Land");
+        FloorPrices.push({Type:"Land", Category:"Genesis", Price:PriceDisplayHuman(data.data.lands.results[0].auction.currentPrice)});
     });
 
     //LandMysticPrice
@@ -249,9 +261,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "LandMysticPrice", "Land");
+        FloorPrices.push({Type:"Land", Category:"Mystic", Price:PriceDisplayHuman(data.data.lands.results[0].auction.currentPrice)});
     });
 
     //LandArcticPrice
@@ -271,9 +281,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "LandArcticPrice", "Land");
+        FloorPrices.push({Type:"Land", Category:"Arctic", Price:PriceDisplayHuman(data.data.lands.results[0].auction.currentPrice)});
     });
 
     //LandForestPrice
@@ -293,9 +301,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        
-        
-        QuerySaver(data, "LandForestPrice", "Land");
+        FloorPrices.push({Type:"Land", Category:"Forest", Price:PriceDisplayHuman(data.data.lands.results[0].auction.currentPrice)});
     });
 
     //LandSavannahPrice
@@ -315,7 +321,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "LandSavannahPrice", "Land");
+        FloorPrices.push({Type:"Land", Category:"Savannah", Price:PriceDisplayHuman(data.data.lands.results[0].auction.currentPrice)});
     });
 
     //Query Item Floors
@@ -336,7 +342,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "ItemMysticPrice", "Item");
+        FloorPrices.push({Type:"Item", Category:"Mystic", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
     });
 
     //ItemEpicPrice
@@ -356,7 +362,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "ItemEpicPrice", "Item");
+        FloorPrices.push({Type:"Item", Category:"Epic", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
     });
 
     //ItemRarePrice
@@ -376,7 +382,7 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "ItemRarePrice", "Item");
+        FloorPrices.push({Type:"Item", Category:"Rare", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
     });
 
     //ItemCommonPrice
@@ -396,7 +402,11 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        QuerySaver(data, "ItemCommonPrice", "Item");
+        FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
     });
-    
+    console.log(FloorPrices);
+}
+
+function QuerySaver() {
+
 }

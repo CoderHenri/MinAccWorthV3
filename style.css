@@ -1,0 +1,234 @@
+#webpage{
+    background-color: #252835;
+  }
+
+#FixedBoxFixer {
+  height: 10px;
+}
+
+#Entwickler {
+  position: fixed;
+  left: 10px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FF8C00;
+}
+
+#Donation {
+  right: 10px;
+  position: fixed;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FF8C00;
+}
+
+#Headline {
+  font-size: 65px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(255, 255, 255);
+  /* text-shadow:
+    -2px -2px 0 #FF8C00,
+    0   -2px 0 #FF8C00,
+    2px -2px 0 #FF8C00,
+    2px  0   0 #FF8C00,
+    2px  2px 0 #FF8C00,
+    0    2px 0 #FF8C00,
+    -2px  2px 0 #FF8C00,
+    -2px  0   0 #FF8C00; */
+  text-align: center;
+  margin-top: 0px;
+}
+  
+#Underline {
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    margin-top: -40px;
+}
+
+#DatacontainerAxies {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    width: 800px;
+    height: auto;
+    position: relative;
+    display: grid;
+    grid-template-rows: 35px 30px 30px 30px 30px 30px 30px 30px 30px 35px;
+    grid-template-columns: 260px 180px 180px 180px;
+    row-gap: 5px;
+}
+
+.GridHeader {
+    font-size: 27px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgba(125, 125, 125, 0.8);
+    text-align: center;
+}
+
+.CalcHeader {
+  grid-column: 1/5;
+  font-size: 27px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(255, 255, 255);
+  border: 1px solid rgba(125, 125, 125, 0.8);
+  text-align: center;
+}
+
+.CategoryAxie {
+    font-size: 25px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgba(125, 125, 125, 0.8);
+    text-align: center;
+}
+
+
+.CategoryFloorPriceAxie{
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgba(125, 125, 125, 0.8);
+    text-align: center;
+    margin-top: 0px;
+}
+
+.CategoryOwnedAxies{
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgba(125, 125, 125, 0.8);
+    text-align: center;
+    margin-top: 0px;
+}
+
+#EntireAccountWorth {
+    font-size: 35px;
+    border: 1px solid rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 255);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    width: 800px;
+    height: auto;
+    text-align: center;
+    display: none;
+}
+
+#DatacontainerLand {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    width: 800px;
+    height: auto;
+    position: relative;
+    display: grid; 
+    grid-template-columns: 260px 180px 180px 180px;
+    grid-template-rows: 35px 30px 30px 30px 30px 30px 35px;
+    row-gap: 5px;
+}
+
+#DatacontainerEstate {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  width: 800px;
+  height: auto;
+  position: relative;
+  display: none; /* grid */
+  grid-template-columns: 260px 180px 180px 180px;
+  grid-template-rows: 35px 30px  35px 35px;
+  row-gap: 5px;
+}
+
+#DatacontainerItem {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  width: 800px;
+  height: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: 260px 180px 180px 180px;
+  grid-template-rows: 35px 30px 30px 30px 30px 35px;
+  row-gap: 5px;
+}
+
+.Buttoncontainer {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    width: 800px;
+    height: auto;
+    position: relative;
+    display: grid;
+    grid-template-columns: 250px 550px;
+}
+
+#SelectETHAddy {
+    width: 250px;
+    height: 30px;
+    background-color: #ffffff; /* Green */
+    border: none;
+    color: #252835;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#ETHAddress {
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    line-height: 30px;
+}
+
+
+/*Loader*/
+#lds-hourglass {
+    margin-left: 50%;
+    margin-right: 50%;
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+#lds-hourglass:after {
+  content: " ";
+  display: block;
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  margin: 8px;
+  box-sizing: border-box;
+  border: 32px solid rgb(255, 255, 255);
+  border-color: rgb(255, 255, 255) transparent rgb(255, 255, 255) transparent;
+  animation: lds-hourglass 1.2s infinite;
+}
+@keyframes lds-hourglass {
+  0% {
+    transform: rotate(0);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  50% {
+    transform: rotate(900deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  100% {
+    transform: rotate(1800deg);
+  }
+}
