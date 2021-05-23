@@ -1,8 +1,20 @@
 var LandGridAll = [];
 var FloorPrices = [];
 var ETHWalletAxie = [];
-var ETHWalletLand = [];
+var ETHWalletLand = []; //ganzes Land mit Koordinaten
 var ETHWalletItem = [];
+
+var RiverMulti = 2;
+var RoadMulti = 1.25;
+var NodeMulti = 1.5;
+
+function FormulaAlert() {
+    alert("Estate Price Formula: \n Price = (Floor Price of the Land Type * (Base Plots + Plots near Water * " + RiverMulti + "\n + Plots near Roads * " + RoadMulti + " + Plots near Nodes * " + NodeMulti + ")) * 1.5 (Savannah & Forest) or 1.3 (Arctic) (Inside River) * Size of Estate \n \n XXL = 100+Plots = *3 \n XL = 50+Plots = *2.5 \n L = 36+Plots = *1.8 \n M = 25+Plots = *1.6 \n MS = 16+Plots = *1.4 \n S = 9+Plots = *1.2");
+}
+
+function SingleAlert() {
+    alert("These are all the plots with less than 9 connected plots");
+}
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -407,7 +419,6 @@ async function LoadFloorPrices() {
     .then(function(data) {
         FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
     });
-    console.log(FloorPrices);
     PriceWriter();
 }
 
@@ -780,10 +791,6 @@ async function GetAccountData(ETHAddy) {
         .then(function(data) {
             ETHWalletItem.push({Type:"Item", Category:"Common", Amount:data.data.items.total});
         });
-    
-        console.log(ETHWalletAxie);
-        console.log(ETHWalletLand);
-        console.log(ETHWalletItem);
 
         AmountWriter();
 }
@@ -865,8 +872,296 @@ function AmountWriter() {
     document.getElementById("EntireAccountWorth").style.display = "block";
     document.getElementById("EntireAccountWorth").innerHTML = "This Address is worth " + EntireWorth + " ETH";
 
-    //AdvancedEstateCalc();
+    AddMultipliers(ETHWalletLand);
+    AdvancedEstateCalc();
     
     var L = document.getElementById("lds-hourglass");
     L.style.display = "none";
+
+    console.log(LandGridAll); 
+    console.log(FloorPrices);
+    console.log(ETHWalletAxie);
+    console.log(ETHWalletLand); 
+    console.log(ETHWalletItem);
+}
+
+function AdvancedEstateCalc() {
+
+    timeout(3000);
+    
+    var GenesisTempArray = [];
+    var MysticTempArray = [];
+    var ArcticTempArray = [];
+    var ForestTempArray = [];
+    var SavannahTempArray = [];
+
+    var EstateArray = [];
+
+    for(i=0; i < ETHWalletLand.length; i++) {
+        if(ETHWalletLand[i].landType == "Genesis") {
+            GenesisTempArray.push(ETHWalletLand[i]);
+        } else if(ETHWalletLand[i].landType == "Mystic") {
+            MysticTempArray.push(ETHWalletLand[i]);
+        } else if(ETHWalletLand[i].landType == "Arctic") {
+            ArcticTempArray.push(ETHWalletLand[i]);
+        } else if(ETHWalletLand[i].landType == "Forest") {
+            ForestTempArray.push(ETHWalletLand[i]);
+        } else if(ETHWalletLand[i].landType == "Savannah") {
+            SavannahTempArray.push(ETHWalletLand[i]);
+        }
+    }
+
+    if(GenesisTempArray.length > 8) {
+        EstateArrayMaker(GenesisTempArray, EstateArray);
+    }
+    if(MysticTempArray.length > 8) {
+        EstateArrayMaker(MysticTempArray, EstateArray);
+    }
+    if(ArcticTempArray.length > 8) {
+        EstateArrayMaker(ArcticTempArray, EstateArray);
+    }
+    if(ForestTempArray.length > 8) {
+        EstateArrayMaker(ForestTempArray, EstateArray);
+    }
+    if(SavannahTempArray.length > 8) {
+        EstateArrayMaker(SavannahTempArray, EstateArray);
+    }
+
+    //sorts according to land and then size
+    var TempSortArray = EstateArray;
+    TempSortArray.sort(function (a, b) {
+        return b.length - a.length;
+    });
+
+    EstateArray = [];
+
+    var TempSortVariable = 0;
+    for(m=0; m < 5; m++) {
+        if(m == 0) {
+            TempSortVariable = "Genesis";
+        } else if(m == 1) {
+            TempSortVariable = "Mystic";
+        } else if(m == 2) {
+            TempSortVariable = "Arctic";
+        } else if(m == 3) {
+            TempSortVariable = "Forest";
+        } else if(m == 4) {
+            TempSortVariable = "Savannah";
+        }
+
+        for(n=0; n < TempSortArray.length; n++) {
+            if(TempSortArray[n][0].landType == TempSortVariable) {
+                EstateArray.push(TempSortArray[n]);
+            }
+        }
+    }
+    //sorting finished
+
+    for(p=0; p < EstateArray.length; p++) {
+        DisplayEstateWriter(EstateArray[p]);
+    }
+    //AdvancedEstateRechnung(EstateArray);
+    //jetzt von LandGridAll die Zusatzinformationen (river etc) holen und mit Estatearray in nen neuen Array kombinieren
+}
+
+function EstateArrayMaker(Array, EstateArray) {
+    var CoordArray = JSON.parse(JSON.stringify(Array));
+    var TempArray = [];
+    
+    for(i=0; i<Array.length; i++) {
+        if(Array[i].row == CoordArray[i].row) {
+            TempArray.push(Array[i])
+            CoordArray[i].row = 999;
+        }
+
+        try{for(j=0; j<Array.length; j++) {
+            for(k=0; k<Array.length; k++) {
+                if(TempArray[j].row -1 == Array[k].row && TempArray[j].col -1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row == Array[k].row && TempArray[j].col -1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row +1 == Array[k].row && TempArray[j].col -1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row -1 == Array[k].row && TempArray[j].col == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row +1 == Array[k].row && TempArray[j].col == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row -1 == Array[k].row && TempArray[j].col +1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row == Array[k].row && TempArray[j].col +1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+                if(TempArray[j].row +1 == Array[k].row && TempArray[j].col +1 == Array[k].col && CoordArray[k].row == Array[k].row) {
+                    TempArray.push(Array[k]);
+                    CoordArray[k].row = 999;
+                }
+            }
+            if(j==TempArray.length-1) {
+                break;
+            }
+        }} catch{}
+        if(TempArray.length > 8) {
+            EstateArray.push(JSON.parse(JSON.stringify(TempArray)));
+            TempArray = [];
+        } else {
+            TempArray = [];
+        }
+    }
+
+    return EstateArray;
+}
+
+function DisplayEstateWriter(SingleEstateArray) {
+    console.log(SingleEstateArray);
+
+    var EstateSize = SingleEstateArray.length;
+    var EstateSizeCategory = null;
+    var EstatePrice = 0;
+
+    if(EstateSize > 99) {     //XXL Estate
+        EstateSizeCategory = "XXL";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    } else if(EstateSize > 49) { //XL Estate
+        EstateSizeCategory = "XL";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    } else if(EstateSize > 35) { //L Estate
+        EstateSizeCategory = "L";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    } else if(EstateSize > 24) { //M Estate
+        EstateSizeCategory = "M";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    } else if(EstateSize > 15) { //MS Estate
+        EstateSizeCategory = "MS";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    } else if(EstateSize > 8) { //S Estate
+        EstateSizeCategory = "S";
+        EstatePrice = CocoMultiAnwender(SingleEstateArray, SingleEstateArray[0].landType, EstateSizeCategory);
+    }
+
+    var div1 = document.createElement("DIV");
+    div1.className = "CategoryAxie";
+    div1.id = "LandType" + SingleEstateArray[0].landType;
+    div1.textContent = SingleEstateArray[0].landType;
+    document.getElementById("DatacontainerEstate").appendChild(div1);
+
+    var div2 = document.createElement("DIV");
+    div2.className = "CategoryAxie";
+    div2.id = "LandType" + SingleEstateArray[0].landType;
+    div2.textContent = EstateSizeCategory;
+    document.getElementById("DatacontainerEstate").appendChild(div2);
+
+    var div3 = document.createElement("DIV");
+    div3.className = "CategoryAxie";
+    div3.id = "LandType" + SingleEstateArray[0].landType;
+    div3.textContent = EstateSize;
+    document.getElementById("DatacontainerEstate").appendChild(div3);
+
+    var div4 = document.createElement("DIV");
+    div4.className = "CategoryAxie";
+    div4.id = "LandType" + SingleEstateArray[0].landType;
+    div4.textContent = EstatePrice;
+    document.getElementById("DatacontainerEstate").appendChild(div4);
+}
+
+//Adds Multipliers to ETHWalletLand
+function AddMultipliers(Array) {
+
+    var TempArray5 = [];
+    //Landgridall with multipliers to Array (>SortedLandGridOwner) that has the plots from the account but not the multiplier and put it into the OwnerestateArray
+    for(i=0; i<Array.length; i++) {
+        for(j=0; j<LandGridAll.length; j++) {
+            if(Array[i].row == LandGridAll[j].row && Array[i].col == LandGridAll[j].col) {
+                TempArray5.push(LandGridAll[j]);
+                break;
+            }
+        }
+    }
+
+    TempArray5.map( s => {
+        if ( s.hasOwnProperty("LandType") )
+        {
+           s.landType = s.LandType;
+           delete s.LandType;   
+        }
+        return s;
+      })
+
+    ETHWalletLand = TempArray5;
+    return;
+}
+
+// Array = Estate / LandType = "Forest" for example / LandSize = "XL" for example
+function CocoMultiAnwender(Array, LandTyp, LandSize) {
+
+    console.log(Array);
+    console.log(LandTyp);
+    console.log(LandSize);
+
+    var GrundPreis = null;
+    for(Q=0; Q < FloorPrices.length; Q++) {
+        if(LandTyp == FloorPrices[Q].Category) {
+            GrundPreis = FloorPrices[Q].Price;
+            break;
+        }
+    }
+
+    var FaktPreis = 0;
+
+    var RiverPlots = 0;
+    var NodePlots = 0;
+    var RoadPlots = 0;
+    var Inside = 1;
+
+    var ESize = 1
+
+    if(LandSize == "XXL") {
+        ESize = 3;
+    } else if(LandSize == "XL") {
+        ESize = 2.5;
+    } else if(LandSize == "L") {
+        ESize = 1.8;
+    } else if(LandSize == "M") {
+        ESize = 1.6;
+    } else if(LandSize == "MS") {
+        ESize = 1.4;
+    } else if(LandSize == "S") {
+        ESize = 1.2;
+    }
+
+    for(i=0; i<Array.length; i++) {
+        if(Array[i].NextToNode == "Yes" && Array[i].landType != "Genesis") {
+            NodePlots++;
+        }
+        if(Array[i].NextToRiver == "Yes" && Array[i].landType != "Genesis") {
+            RiverPlots++;
+        }
+        if(Array[i].NextToRoad == "Yes") {
+            RoadPlots++;
+        }
+    }
+    if(Array[0].InsideRiver == "Yes" && Array[0].landType != "Genesis" && Array[0].landType != "Mystic") {
+        if(Array[0].landType == "Arctic") {
+            Inside = 1.3;
+        } else {
+            Inside = 1.5;
+        }
+    }
+
+    FaktPreis = (GrundPreis * (Array.length - RiverPlots - NodePlots - RoadPlots + RiverPlots * RiverMulti + NodePlots * NodeMulti + RoadPlots * RoadMulti)) * Inside * ESize;
+    FaktPreis = Math.round((FaktPreis + Number.EPSILON) * 10000) / 10000;
+
+    return FaktPreis;
 }

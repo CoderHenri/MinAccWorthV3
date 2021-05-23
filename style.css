@@ -142,7 +142,7 @@
   width: 800px;
   height: auto;
   position: relative;
-  display: none; /* grid */
+  display: grid; /* grid */
   grid-template-columns: 260px 180px 180px 180px;
   grid-template-rows: 35px 30px  35px 35px;
   row-gap: 5px;
