@@ -4,6 +4,12 @@ var ETHWalletAxie = [];
 var ETHWalletLand = []; //ganzes Land mit Koordinaten
 var ETHWalletItem = [];
 
+var NonEstatePlotsPrice = [];
+
+var EntireEstatePrice = 0;
+var GesamtWertAxie = 0;
+var GesamtWertItem = 0;
+
 var RiverMulti = 2;
 var RoadMulti = 1.25;
 var NodeMulti = 1.5;
@@ -13,7 +19,7 @@ function FormulaAlert() {
 }
 
 function SingleAlert() {
-    alert("These are all the plots with less than 9 connected plots");
+    alert("These are all the plots with less than 9 connected plots \n Multiplicators added for the plots were next to a Node, River or Road \n and if they were inside or outside the River and not Genesis or Mystic plots \n (Price = (Floor Price of the Land Type * (Plot near Water * " + RiverMulti + " + Plot near Road * " + RoadMulti + " + Plot near Node * " + NodeMulti + ")) * 1.5 (Savannah & Forest) or 1.3 (Arctic) (Inside River)");
 }
 
 function timeout(ms) {
@@ -877,12 +883,6 @@ function AmountWriter() {
     
     var L = document.getElementById("lds-hourglass");
     L.style.display = "none";
-
-    console.log(LandGridAll); 
-    console.log(FloorPrices);
-    console.log(ETHWalletAxie);
-    console.log(ETHWalletLand); 
-    console.log(ETHWalletItem);
 }
 
 function AdvancedEstateCalc() {
@@ -896,6 +896,7 @@ function AdvancedEstateCalc() {
     var SavannahTempArray = [];
 
     var EstateArray = [];
+    var NonEstateArray = [];
 
     for(i=0; i < ETHWalletLand.length; i++) {
         if(ETHWalletLand[i].landType == "Genesis") {
@@ -957,11 +958,34 @@ function AdvancedEstateCalc() {
     }
     //sorting finished
 
+    //Single advanced Plot Prices
+    var NonEstatePlots = JSON.parse(JSON.stringify(ETHWalletLand));
+
+    for(a=0; a < ETHWalletLand.length; a++) {
+        for(s=0; s < EstateArray.length; s++) {
+            for(d=0; d < EstateArray[s].length; d++) {
+                if(EstateArray[s][d].row == ETHWalletLand[a].row && EstateArray[s][d].col == ETHWalletLand[a].col) {
+                    delete NonEstatePlots[a];
+                    break;
+                }
+            }
+        }
+    }
+    NonEstatePlots = NonEstatePlots.filter(function (el) {
+        return el != null;
+    });
+
+    NonEstatePlots.sort(function (a, b) {
+        return b.landType - a.landType;
+    });
+
+    TediouslyWritenUIWriter(NonEstatePlots);
+
     for(p=0; p < EstateArray.length; p++) {
         DisplayEstateWriter(EstateArray[p]);
     }
-    //AdvancedEstateRechnung(EstateArray);
-    //jetzt von LandGridAll die Zusatzinformationen (river etc) holen und mit Estatearray in nen neuen Array kombinieren
+    
+    EndRechner();
 }
 
 function EstateArrayMaker(Array, EstateArray) {
@@ -1025,7 +1049,6 @@ function EstateArrayMaker(Array, EstateArray) {
 }
 
 function DisplayEstateWriter(SingleEstateArray) {
-    console.log(SingleEstateArray);
 
     var EstateSize = SingleEstateArray.length;
     var EstateSizeCategory = null;
@@ -1064,16 +1087,18 @@ function DisplayEstateWriter(SingleEstateArray) {
     document.getElementById("DatacontainerEstate").appendChild(div2);
 
     var div3 = document.createElement("DIV");
-    div3.className = "CategoryAxie";
+    div3.className = "CategoryFloorPriceAxie";
     div3.id = "LandType" + SingleEstateArray[0].landType;
     div3.textContent = EstateSize;
     document.getElementById("DatacontainerEstate").appendChild(div3);
 
     var div4 = document.createElement("DIV");
-    div4.className = "CategoryAxie";
+    div4.className = "CategoryFloorPriceAxie";
     div4.id = "LandType" + SingleEstateArray[0].landType;
     div4.textContent = EstatePrice;
     document.getElementById("DatacontainerEstate").appendChild(div4);
+
+    EntireEstatePrice = EntireEstatePrice + EstatePrice;
 }
 
 //Adds Multipliers to ETHWalletLand
@@ -1105,10 +1130,6 @@ function AddMultipliers(Array) {
 
 // Array = Estate / LandType = "Forest" for example / LandSize = "XL" for example
 function CocoMultiAnwender(Array, LandTyp, LandSize) {
-
-    console.log(Array);
-    console.log(LandTyp);
-    console.log(LandSize);
 
     var GrundPreis = null;
     for(Q=0; Q < FloorPrices.length; Q++) {
@@ -1164,4 +1185,139 @@ function CocoMultiAnwender(Array, LandTyp, LandSize) {
     FaktPreis = Math.round((FaktPreis + Number.EPSILON) * 10000) / 10000;
 
     return FaktPreis;
+}
+
+function TediouslyWritenUIWriter(NonEstateArray) {
+
+    var FinSinglePLotArray = [];
+    var GenTemp = 0;
+    var ArcTemp = 0;
+    var MysTemp = 0;
+    var ForTemp = 0;
+    var SavTemp = 0;
+    var GenPreisTemp = 0;
+    var ArcPreisTemp = 0;
+    var MysPreisTemp = 0;
+    var ForPreisTemp = 0;
+    var SavPreisTemp = 0;
+    var TempGrundPreis = 0;
+    var TempFloorName = null;
+    var TempFaktPreis = 0;
+    var NodeYN = 0;
+    var RiverYN = 0;
+    var RoadYN = 0;
+    var InsideYN = 0;
+
+    for(m=0; m<NonEstateArray.length; m++) {
+        TempFloorName = "Land"+NonEstateArray[m].landType+"Price";
+        for(Q=0; Q < FloorPrices.length; Q++) {
+            if(NonEstateArray[m].landType == FloorPrices[Q].Category) {
+                TempGrundPreis = FloorPrices[Q].Price;
+                break;
+            }
+        }
+
+        if(NonEstateArray[m].InsideRiver == "Yes" && NonEstateArray[m].landType != "Genesis" && NonEstateArray[m].landType != "Mystic" && NonEstateArray[m].landType != "Arctic") {
+            InsideYN = 1.5;
+        } else if(NonEstateArray[m].landType == "Arctic"){
+            InsideYN = 1.3;
+        } else {
+            InsideYN = 1;
+        }
+        if(NonEstateArray[m].NextToNode == "Yes") {
+            NodeYN = NodeMulti;
+        } else {
+            NodeYN = 1;
+        }
+        if(NonEstateArray[m].NextToRiver == "Yes" && NonEstateArray[m].landType != "Genesis") {
+            RiverYN = RiverMulti;
+        } else {
+            RiverYN = 1;
+        }
+        if(NonEstateArray[m].NextToRoad == "Yes") {
+            RoadYN = RoadMulti;
+        } else {
+            RoadYN = 1;
+        }
+
+        TempFaktPreis = (TempGrundPreis * (1  * NodeYN * RiverYN * RoadYN)) * InsideYN;
+
+        if(NonEstateArray[m].landType == "Genesis") {
+            GenPreisTemp = GenPreisTemp + TempFaktPreis;
+            GenTemp++;
+        }
+        if(NonEstateArray[m].landType == "Mystic") {
+            MysPreisTemp = MysPreisTemp + TempFaktPreis;
+            MysTemp++;
+        }
+        if(NonEstateArray[m].landType == "Arctic") {
+            ArcPreisTemp = ArcPreisTemp + TempFaktPreis;
+            ArcTemp++;
+        }
+        if(NonEstateArray[m].landType == "Forest") {
+            ForPreisTemp = ForPreisTemp + TempFaktPreis;
+            ForTemp++;
+        }
+        if(NonEstateArray[m].landType == "Savannah") {
+            SavPreisTemp = SavPreisTemp + TempFaktPreis;
+            SavTemp++;
+        }
+    }
+
+    if(GenTemp != 0) {
+        GenPreisTemp = Math.round((GenPreisTemp + Number.EPSILON) * 10000) / 10000;
+        FinSinglePLotArray.push({landType:"Genesis", AmountOfPlots:GenTemp, Price:GenPreisTemp});
+    }
+    if(MysTemp != 0) {
+        MysPreisTemp = Math.round((MysPreisTemp + Number.EPSILON) * 10000) / 10000;
+        FinSinglePLotArray.push({landType:"Mystic", AmountOfPlots:MysTemp, Price:MysPreisTemp});
+    }
+    if(ArcTemp != 0) {
+        ArcPreisTemp = Math.round((ArcPreisTemp + Number.EPSILON) * 10000) / 10000;
+        FinSinglePLotArray.push({landType:"Arctic", AmountOfPlots:ArcTemp, Price:ArcPreisTemp});
+    }
+    if(ForTemp != 0) {
+        ForPreisTemp = Math.round((ForPreisTemp + Number.EPSILON) * 10000) / 10000;
+        FinSinglePLotArray.push({landType:"Forest", AmountOfPlots:ForTemp, Price:ForPreisTemp});
+    }
+    if(SavTemp != 0) {
+        SavPreisTemp = Math.round((SavPreisTemp + Number.EPSILON) * 10000) / 10000;
+        FinSinglePLotArray.push({landType:"Savannah", AmountOfPlots:SavTemp, Price:SavPreisTemp});
+    }
+
+    for(k=0; k<FinSinglePLotArray.length; k++) {
+        //Make fields visible
+        var CssStyleSingle = ".Lone" + FinSinglePLotArray[k].landType + "Vis";
+        var StackOFSingle = document.querySelectorAll(CssStyleSingle);
+        for(var l = 0; l < StackOFSingle.length; l++) {
+            StackOFSingle[l].style.display="block";
+        }
+
+        //Add the numbers
+        var HTMLPlotsSingle = "Land" + FinSinglePLotArray[k].landType + "AdvancedAmount";
+        document.getElementById(HTMLPlotsSingle).innerHTML = FinSinglePLotArray[k].AmountOfPlots;
+
+        var HTMLPricesSingle = "Land" + FinSinglePLotArray[k].landType + "AdvancedWorth";
+        document.getElementById(HTMLPricesSingle).innerHTML = FinSinglePLotArray[k].Price;
+    }
+
+    NonEstatePlotsPrice = FinSinglePLotArray;
+}
+
+function EndRechner() {
+
+    var TempValue = 0;
+    for(i=0; i<NonEstatePlotsPrice.length; i++) {
+        TempValue = TempValue + NonEstatePlotsPrice[i].Price;
+    }
+    EntireEstatePrice = EntireEstatePrice + TempValue;
+    //calculate the entire land worth from the advanced function and that plus Axies and Items
+    EntireEstatePrice = Math.round((EntireEstatePrice + Number.EPSILON) * 10000) / 10000;
+    document.getElementById("EntireLandAdvancedWorth").innerHTML = "Calculated Worth of all Landplots and Estates = " + EntireEstatePrice + " ETH";
+
+    var EntireWorthAdvanced = GesamtWertAxie + EntireEstatePrice + GesamtWertItem;
+    EntireWorthAdvanced = Math.round((EntireWorthAdvanced + Number.EPSILON) * 10000) / 10000;
+    document.getElementById("EntireAccountWorthAdvanced").innerHTML = "This Address is worth " + EntireWorthAdvanced + " ETH";
+
+    document.getElementById("DatacontainerEstate").style.display = "grid";
 }

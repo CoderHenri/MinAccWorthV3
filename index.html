@@ -154,14 +154,50 @@
     <br>
     <div class="GridHeader" onclick="FormulaAlert()"> ADVANCED (click here for calc formula) </div>
     <br>
-    <div id="DatacontainerEstate">
+    <div class="DatConEstate" id="DatacontainerEstate">
         
         <div class="GridHeader"> Land Type </div>
         <div class="GridHeader"> Estate Type </div>
         <div class="GridHeader"> Lands Owned </div>
         <div class="GridHeader"> Value </div>
-    
-    
+
+    </div>
+    <br>
+    <div class="DatConEstate" id="DatacontainerEstateSingle">
+    <!-- Non Estate Lands -->
+        <div class="GridHeader"> Land Categories </div>
+        <div class="GridHeader"> Non-Estates </div>
+        <div class="GridHeader"> Lands Owned </div>
+        <div class="GridHeader"> Value </div>
+
+        <div class="CategoryAxie LoneGenesisVis" id="LandGenesis"> Genesis </div>
+        <div class="CategoryFloorPriceAxie LoneGenesisVis" id="LandGenesisInfo" onclick="SingleAlert()"> Info </div>
+        <div class="CategoryOwnedAxies LoneGenesisVis" id="LandGenesisAdvancedAmount"> --- Plots </div>
+        <div class="CategoryOwnedAxies LoneGenesisVis" id="LandGenesisAdvancedWorth"> --- ETH </div>
+
+        <div class="CategoryAxie LoneMysticVis" id="LandMystic"> Mystic </div>
+        <div class="CategoryFloorPriceAxie LoneMysticVis" id="LandMysticInfo" onclick="SingleAlert()"> Info </div>
+        <div class="CategoryOwnedAxies LoneMysticVis" id="LandMysticAdvancedAmount"> --- Plots </div>
+        <div class="CategoryOwnedAxies LoneMysticVis" id="LandMysticAdvancedWorth"> --- ETH </div>
+
+        <div class="CategoryAxie LoneArcticVis" id="LandArctic"> Arctic </div>
+        <div class="CategoryFloorPriceAxie LoneArcticVis" id="LandArcticInfo" onclick="SingleAlert()"> Info </div>
+        <div class="CategoryOwnedAxies LoneArcticVis" id="LandArcticAdvancedAmount"> --- Plots </div>
+        <div class="CategoryOwnedAxies LoneArcticVis" id="LandArcticAdvancedWorth"> --- ETH </div>
+
+        <div class="CategoryAxie LoneForestVis" id="LandForest"> Forest </div>
+        <div class="CategoryFloorPriceAxie LoneForestVis" id="LandForestInfo" onclick="SingleAlert()"> Info </div>
+        <div class="CategoryOwnedAxies LoneForestVis" id="LandForestAdvancedAmount"> --- Plots </div>
+        <div class="CategoryOwnedAxies LoneForestVis" id="LandForestAdvancedWorth"> --- ETH </div>
+
+        <div class="CategoryAxie LoneSavannahVis" id="LandSavannah"> Savannah </div>
+        <div class="CategoryFloorPriceAxie LoneSavannahVis" id="LandSavannahInfo" onclick="SingleAlert()"> Info </div>
+        <div class="CategoryOwnedAxies LoneSavannahVis" id="LandSavannahAdvancedAmount"> --- Plots </div>
+        <div class="CategoryOwnedAxies LoneSavannahVis" id="LandSavannahAdvancedWorth"> --- ETH </div>
+        
+
+        <div class="CalcHeader" id="EntireLandAdvancedWorth"> New Calculated Worth of all the Land = ? </div>
+        <div class="CalcHeader" id="EntireAccountWorthAdvanced"> Your entire Account is worth: </div>
     </div>
     
 </div> 
