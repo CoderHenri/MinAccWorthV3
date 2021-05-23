@@ -1,4 +1,5 @@
 var LandGridAll = [];
+var WorldGrid = [];
 var FloorPrices = [];
 var ETHWalletAxie = [];
 var ETHWalletLand = []; //ganzes Land mit Koordinaten
@@ -34,14 +35,16 @@ function PriceDisplayHuman(num) {
 
 async function ReadTextFile() {
 
-    LandGridAll = await AsyncTextReader();
+    WorldGrid = await AsyncTextReader('./Land_Grid_Data_Combined.txt');
+
+    LandGridAll = await AsyncTextReader('./Land_Grid_Data_Multiplier_V1.txt');
     return LandGridAll;
 }
 
-function AsyncTextReader() {
+function AsyncTextReader(Place) {
     return new Promise(function (resolve, reject) {
         var objXMLhttp = new XMLHttpRequest()
-        objXMLhttp.open("GET", './Land_Grid_Data_Multiplier_V1.txt', true);
+        objXMLhttp.open("GET", Place, true);
         objXMLhttp.send();
         objXMLhttp.onreadystatechange = function(){
         if (objXMLhttp.readyState == 4){
@@ -1047,8 +1050,10 @@ function EstateArrayMaker(Array, EstateArray) {
     return EstateArray;
 }
 
+var CanvasCounter = 0;
 function DisplayEstateWriter(SingleEstateArray) {
 
+    CanvasCounter = CanvasCounter + 1;
     var EstateSize = SingleEstateArray.length;
     var EstateSizeCategory = null;
     var EstatePrice = 0;
@@ -1096,6 +1101,14 @@ function DisplayEstateWriter(SingleEstateArray) {
     div4.id = "LandType" + SingleEstateArray[0].landType;
     div4.textContent = EstatePrice;
     document.getElementById("DatacontainerEstate").appendChild(div4);
+
+    var canvas = document.createElement("CANVAS");
+    canvas.className = "CanvasMap";
+    canvas.id = "MyCanvas" + CanvasCounter;
+    canvas.width = 50;
+    canvas.height = 50;
+    document.getElementById("DatacontainerEstate").appendChild(canvas);
+    GenerateMap(SingleEstateArray, CanvasCounter);
 
     EntireEstatePrice = EntireEstatePrice + EstatePrice;
 }
@@ -1305,7 +1318,7 @@ function TediouslyWritenUIWriter(NonEstateArray) {
 
 function EndRechner() {
     var TempValue = 0;
-    
+
     for(i=0; i<NonEstatePlotsPrice.length; i++) {
         TempValue = TempValue + NonEstatePlotsPrice[i].Price;
     }
@@ -1323,3 +1336,122 @@ function EndRechner() {
         all[i].style.display = "grid";
     }
 }
+
+function GenerateMap(MultiplierArray, CanvasCounter) {
+
+    console.log(WorldGrid);
+    
+    var StartRow = 0;
+    var StartCol = 0;
+    var EndRow = 0;
+    var EndCol = 0;
+    var hoch = 0;
+    var weit = 0;
+    var Infrastructure = [];
+    var Scaling = 5;
+
+    MultiplierArray.sort(function (a, b) {
+        return a.col - b.col;
+    });
+    StartCol = MultiplierArray[0].col -2;
+    EndCol = MultiplierArray[MultiplierArray.length-1].col +2;
+
+    var a = StartCol - EndCol;
+    var b = 0 - 0;
+
+    weit = Math.sqrt( a*a + b*b );
+    console.log(weit);
+
+    MultiplierArray.sort(function (a, b) {
+        return a.row - b.row;
+    });
+    StartRow = MultiplierArray[0].row -2;
+    EndRow = MultiplierArray[MultiplierArray.length-1].row +2;
+
+    var e = StartRow - EndRow;
+    var d = 0 - 0;
+
+    hoch = Math.sqrt( e*e + d*d );
+    console.log(hoch);
+
+    console.log(MultiplierArray);
+
+    for(i=0; i < WorldGrid.length; i++) {
+        if((WorldGrid[i].LandType == "Road" || WorldGrid[i].LandType == "River" || WorldGrid[i].LandType == "Node") && (WorldGrid[i].col > StartCol && WorldGrid[i].col < EndCol) && (WorldGrid[i].row > StartRow && WorldGrid[i].row < EndRow)) {
+            Infrastructure.push(WorldGrid[i]);
+        }
+    }
+
+    console.log(Infrastructure);
+
+    Infrastructure.map( s => {
+        if ( s.hasOwnProperty("LandType") )
+        {
+           s.landType = s.LandType;
+           delete s.LandType;   
+        }
+        return s;
+      })
+
+    for(j=0; j < Infrastructure.length; j++) {
+        MultiplierArray.push(Infrastructure[j]);
+    }
+
+    var c = document.getElementById("MyCanvas" + CanvasCounter);
+    c.height = hoch * Scaling;
+    c.width = weit * Scaling;
+    console.log(c.height + " w kommt " + c.width);
+    var ctx = c.getContext("2d");
+    ctx.scale(Scaling,Scaling);
+
+    /*
+    colorcodes:
+        Road: #F9EED4
+        River: #2481ED
+        Node: #FF6BA3
+
+        Savannah: #FFB70F
+        Forest: #C9F13B
+        Arctic: #E4FFF6
+        Mystic: #6ABBD0
+    */
+
+    for(i=0; i<MultiplierArray.length; i++) {
+      
+      var xCord = MultiplierArray[i].col + StartCol*-1;
+      var yCord = MultiplierArray[i].row + StartRow*-1;
+  
+      if(MultiplierArray[i].landType == "Savannah") {
+        ctx.fillStyle = "#FFB70F";
+      } else if(MultiplierArray[i].landType == "Forest") {
+        ctx.fillStyle = "#C9F13B";
+      } else if(MultiplierArray[i].landType == "Arctic") {
+        ctx.fillStyle = "#E4FFF6";
+      } else if(MultiplierArray[i].landType == "Mystic") {
+        ctx.fillStyle = "#6ABBD0";
+      } else if(MultiplierArray[i].landType == "Genesis") {
+        ctx.fillStyle = "black";
+      }
+  
+      if(MultiplierArray[i].landType == "Road") {
+        ctx.fillStyle = "#F9EED4";
+      } else if(MultiplierArray[i].landType == "River") {
+        ctx.fillStyle = "#2481ED";
+      } else if(MultiplierArray[i].landType == "Node") {
+        ctx.fillStyle = "#FF6BA3";
+      }
+      /*
+      if(MultiplierArray[i].InsideRiver == "No") {
+        ctx.fillStyle = "gray";
+      }
+      if(MultiplierArray[i].InsideRiver == "Yes") {
+        ctx.fillStyle = "red";
+      }
+      */
+      
+      ctx.fillRect(xCord, yCord, 1, 1);
+  
+    }
+    console.log("ende");
+  
+  }

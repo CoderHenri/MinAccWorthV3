@@ -150,6 +150,11 @@
   row-gap: 5px;
 }
 
+.CanvasMap {
+  grid-column: 1/5;
+  margin-bottom: 5px;
+}
+
 #DatacontainerItem {
   border: 1px solid rgba(255, 255, 255, 0.8);
   margin-left: auto;
