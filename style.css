@@ -144,7 +144,7 @@
   width: 800px;
   height: auto;
   position: relative;
-  display: grid; /* grid */
+  display: none; /* grid */
   grid-template-columns: 260px 180px 180px 180px;
   grid-template-rows: 35px 30px;
   row-gap: 5px;

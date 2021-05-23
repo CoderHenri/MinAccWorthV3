@@ -896,7 +896,6 @@ function AdvancedEstateCalc() {
     var SavannahTempArray = [];
 
     var EstateArray = [];
-    var NonEstateArray = [];
 
     for(i=0; i < ETHWalletLand.length; i++) {
         if(ETHWalletLand[i].landType == "Genesis") {
@@ -1319,5 +1318,8 @@ function EndRechner() {
     EntireWorthAdvanced = Math.round((EntireWorthAdvanced + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireAccountWorthAdvanced").innerHTML = "This Address is worth " + EntireWorthAdvanced + " ETH";
 
-    document.getElementById("DatacontainerEstate").style.display = "grid";
+    var all = document.getElementsByClassName("DatConEstate");
+    for (var i = 0; i < all.length; i++) {
+        all[i].style.display = "grid";
+    }
 }
