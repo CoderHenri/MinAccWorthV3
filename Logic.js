@@ -1304,8 +1304,8 @@ function TediouslyWritenUIWriter(NonEstateArray) {
 }
 
 function EndRechner() {
-
     var TempValue = 0;
+    
     for(i=0; i<NonEstatePlotsPrice.length; i++) {
         TempValue = TempValue + NonEstatePlotsPrice[i].Price;
     }
