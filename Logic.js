@@ -15,6 +15,10 @@ var RiverMulti = 2;
 var RoadMulti = 1.25;
 var NodeMulti = 1.5;
 
+var DynamicEstateRemover = [];
+
+var brCheat = 0;
+
 function FormulaAlert() {
     alert("Estate Price Formula: \n Price = (Floor Price of the Land Type * (Base Plots + Plots near Water * " + RiverMulti + "\n + Plots near Roads * " + RoadMulti + " + Plots near Nodes * " + NodeMulti + ")) * 1.5 (Savannah & Forest) or 1.3 (Arctic) (Inside River) * Size of Estate \n \n XXL = 100+Plots = *3 \n XL = 50+Plots = *2.5 \n L = 36+Plots = *1.8 \n M = 25+Plots = *1.6 \n MS = 16+Plots = *1.4 \n S = 9+Plots = *1.2");
 }
@@ -1080,27 +1084,35 @@ function DisplayEstateWriter(SingleEstateArray) {
 
     var div1 = document.createElement("DIV");
     div1.className = "CategoryAxie";
-    div1.id = "LandType" + SingleEstateArray[0].landType;
+    div1.id = "LandType1" + SingleEstateArray[0].landType;
     div1.textContent = SingleEstateArray[0].landType;
     document.getElementById("DatacontainerEstate").appendChild(div1);
 
+    DynamicEstateRemover.push("LandType1" + SingleEstateArray[0].landType);
+
     var div2 = document.createElement("DIV");
     div2.className = "CategoryAxie";
-    div2.id = "LandType" + SingleEstateArray[0].landType;
+    div2.id = "LandType2" + SingleEstateArray[0].landType;
     div2.textContent = EstateSizeCategory;
     document.getElementById("DatacontainerEstate").appendChild(div2);
 
+    DynamicEstateRemover.push("LandType2" + SingleEstateArray[0].landType);
+
     var div3 = document.createElement("DIV");
     div3.className = "CategoryFloorPriceAxie";
-    div3.id = "LandType" + SingleEstateArray[0].landType;
+    div3.id = "LandType3" + SingleEstateArray[0].landType;
     div3.textContent = EstateSize;
     document.getElementById("DatacontainerEstate").appendChild(div3);
 
+    DynamicEstateRemover.push("LandType3" + SingleEstateArray[0].landType);
+
     var div4 = document.createElement("DIV");
     div4.className = "CategoryFloorPriceAxie";
-    div4.id = "LandType" + SingleEstateArray[0].landType;
+    div4.id = "LandType4" + SingleEstateArray[0].landType;
     div4.textContent = EstatePrice;
     document.getElementById("DatacontainerEstate").appendChild(div4);
+
+    DynamicEstateRemover.push("LandType4" + SingleEstateArray[0].landType);
 
     var canvas = document.createElement("CANVAS");
     canvas.className = "CanvasMap";
@@ -1108,7 +1120,10 @@ function DisplayEstateWriter(SingleEstateArray) {
     canvas.width = 50;
     canvas.height = 50;
     document.getElementById("DatacontainerEstate").appendChild(canvas);
+
     GenerateMap(SingleEstateArray, CanvasCounter);
+
+    DynamicEstateRemover.push("MyCanvas" + CanvasCounter);
 
     EntireEstatePrice = EntireEstatePrice + EstatePrice;
 }
@@ -1335,11 +1350,17 @@ function EndRechner() {
     for (var i = 0; i < all.length; i++) {
         all[i].style.display = "grid";
     }
+
+    if(brCheat == 0) {
+        var mybr = document.createElement("BR");
+        document.getElementById("SimpleFeature").appendChild(mybr);
+    }
+    brCheat = 1;
+
+    document.getElementById("EditArray").style.display = "block";
 }
 
 function GenerateMap(MultiplierArray, CanvasCounter) {
-
-    console.log(WorldGrid);
     
     var StartRow = 0;
     var StartCol = 0;
@@ -1360,7 +1381,6 @@ function GenerateMap(MultiplierArray, CanvasCounter) {
     var b = 0 - 0;
 
     weit = Math.sqrt( a*a + b*b );
-    console.log(weit);
 
     MultiplierArray.sort(function (a, b) {
         return a.row - b.row;
@@ -1372,17 +1392,12 @@ function GenerateMap(MultiplierArray, CanvasCounter) {
     var d = 0 - 0;
 
     hoch = Math.sqrt( e*e + d*d );
-    console.log(hoch);
 
-    console.log(MultiplierArray);
-
-    for(i=0; i < WorldGrid.length; i++) {
-        if((WorldGrid[i].LandType == "Road" || WorldGrid[i].LandType == "River" || WorldGrid[i].LandType == "Node") && (WorldGrid[i].col > StartCol && WorldGrid[i].col < EndCol) && (WorldGrid[i].row > StartRow && WorldGrid[i].row < EndRow)) {
-            Infrastructure.push(WorldGrid[i]);
+    for(r=0; r < WorldGrid.length; r++) {
+        if((WorldGrid[r].LandType == "Road" || WorldGrid[r].LandType == "River" || WorldGrid[r].LandType == "Node") && (WorldGrid[r].col > StartCol && WorldGrid[r].col < EndCol) && (WorldGrid[r].row > StartRow && WorldGrid[r].row < EndRow)) {
+            Infrastructure.push(JSON.parse(JSON.stringify(WorldGrid[r])));
         }
     }
-
-    console.log(Infrastructure);
 
     Infrastructure.map( s => {
         if ( s.hasOwnProperty("LandType") )
@@ -1393,14 +1408,9 @@ function GenerateMap(MultiplierArray, CanvasCounter) {
         return s;
       })
 
-    for(j=0; j < Infrastructure.length; j++) {
-        MultiplierArray.push(Infrastructure[j]);
-    }
-
     var c = document.getElementById("MyCanvas" + CanvasCounter);
     c.height = hoch * Scaling;
     c.width = weit * Scaling;
-    console.log(c.height + " w kommt " + c.width);
     var ctx = c.getContext("2d");
     ctx.scale(Scaling,Scaling);
 
@@ -1432,26 +1442,115 @@ function GenerateMap(MultiplierArray, CanvasCounter) {
       } else if(MultiplierArray[i].landType == "Genesis") {
         ctx.fillStyle = "black";
       }
-  
-      if(MultiplierArray[i].landType == "Road") {
-        ctx.fillStyle = "#F9EED4";
-      } else if(MultiplierArray[i].landType == "River") {
-        ctx.fillStyle = "#2481ED";
-      } else if(MultiplierArray[i].landType == "Node") {
-        ctx.fillStyle = "#FF6BA3";
-      }
-      /*
-      if(MultiplierArray[i].InsideRiver == "No") {
-        ctx.fillStyle = "gray";
-      }
-      if(MultiplierArray[i].InsideRiver == "Yes") {
-        ctx.fillStyle = "red";
-      }
-      */
       
       ctx.fillRect(xCord, yCord, 1, 1);
   
     }
-    console.log("ende");
-  
-  }
+
+    for(i=0; i<Infrastructure.length; i++) {
+      
+        var xCord = Infrastructure[i].col + StartCol*-1;
+        var yCord = Infrastructure[i].row + StartRow*-1;
+    
+        if(Infrastructure[i].landType == "Road") {
+          ctx.fillStyle = "#F9EED4";
+        } else if(Infrastructure[i].landType == "River") {
+          ctx.fillStyle = "#2481ED";
+        } else if(Infrastructure[i].landType == "Node") {
+          ctx.fillStyle = "#FF6BA3";
+        }
+        
+        ctx.fillRect(xCord, yCord, 1, 1);
+    
+      }
+      Infrastructure = [];
+}
+
+function EditArrayValues() {
+
+    document.getElementById("FormContainer").style.display = "block";
+
+    for(i=0; i<FloorPrices.length; i++) {
+        var label = document.createElement("LABEL");
+        label.className = "FormLabel";
+        label.textContent = "Floor Price " + FloorPrices[i].Category + " " + FloorPrices[i].Type + ":";
+        document.getElementById("AdjustForm").appendChild(label);
+
+        var input = document.createElement("INPUT");
+        input.className = "InputUser";
+        input.id = "IP" + FloorPrices[i].Type + FloorPrices[i].Category; // ie AxieNormal
+        input.value = FloorPrices[i].Price;
+        document.getElementById("AdjustForm").appendChild(input);
+    }
+}
+
+function SubmitInput() {
+    var AdjustedValueArray = [];
+
+    //checks if only valid values were entered
+    for(j=0; j<18; j++) {
+        if(isNumeric(document.getElementById("IP"+FloorPrices[j].Type + FloorPrices[j].Category).value)) {
+        } else {
+            alert("Please only input real numbers \n and only use '.' and not ','");
+            return;
+        }
+    }
+
+    for(i=0; i<18; i++) {
+        AdjustedValueArray.push(document.getElementById("IP"+FloorPrices[i].Type + FloorPrices[i].Category).value);
+    }
+
+    for(k=0; k<18; k++) {
+        FloorPrices[k].Price = AdjustedValueArray[k];
+    }
+
+    PriceWriter();
+
+    //need to remove the old dynamically created advanced estate calcs
+    //from stackoverflow, necessery to remove the generated labels and inputs
+    Element.prototype.remove = function() {
+        this.parentElement.removeChild(this);
+    }
+    NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+        for(var i = this.length - 1; i >= 0; i--) {
+            if(this[i] && this[i].parentElement) {
+                this[i].parentElement.removeChild(this[i]);
+            }
+        }
+    }
+
+    for(l=0; l<DynamicEstateRemover.length; l++) {
+        document.getElementById(DynamicEstateRemover[l]).remove();
+    }
+
+    //resetting some global variables
+    DynamicEstateRemover = [];
+    EntireEstatePrice = 0;
+    CanvasCounter = 0;
+
+    AmountWriter();
+}
+
+function CancelInput() {
+    //from stackoverflow, necessery to remove the generated labels and inputs
+    Element.prototype.remove = function() {
+        this.parentElement.removeChild(this);
+    }
+    NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+        for(var i = this.length - 1; i >= 0; i--) {
+            if(this[i] && this[i].parentElement) {
+                this[i].parentElement.removeChild(this[i]);
+            }
+        }
+    }
+
+    document.getElementById("FormContainer").style.display = "none";
+    document.getElementsByClassName("FormLabel").remove();
+    document.getElementsByClassName("InputUser").remove();
+}
+
+function isNumeric(str) {
+    if (typeof str != "string") return false // we only process strings!  
+    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}

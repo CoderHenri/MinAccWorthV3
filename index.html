@@ -26,8 +26,16 @@
 
     <div id="SimpleFeature">    
         <div class="Buttoncontainer">
-            <button id="SelectETHAddy" onclick="SelectAddress()"> Select ETH Address </button>
+            <button class="Button" id="SelectETHAddy" onclick="SelectAddress()"> Select ETH Address </button>
                 <div id="ETHAddress"> 0x... </div>
+            <button class="Button" id="EditArray" onclick="EditArrayValues()"> Adjust Floor Prices as you want </button>
+            <div id="FormContainer">
+                <form id="AdjustForm" onsubmit="return false;">
+                    <button class="Button" id="SubmitButton" onclick="SubmitInput()" >Apply</button>
+                    <button class="Button" id="CancelButton" onclick="CancelInput()" >Cancel</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div id="EntireAccountWorth"> Your entire Account is worth: </div>
@@ -44,15 +52,15 @@
             <div class="CategoryOwnedAxies" id="AxieNormalAmount"> --- Axies </div>
             <div class="CategoryOwnedAxies" id="AxieNormalWorth"> --- ETH </div>
 
-            <div class="CategoryAxie" id="AxieJapanese"> Japanese Axie </div>
-            <div class="CategoryFloorPriceAxie" id="AxieJapanesePrice"> ? ETH </div>
-            <div class="CategoryOwnedAxies" id="AxieJapaneseAmount"> --- Axies </div>
-            <div class="CategoryOwnedAxies" id="AxieJapaneseWorth"> --- ETH </div>
-
             <div class="CategoryAxie" id="AxieOrigin"> Origin Axie </div>
             <div class="CategoryFloorPriceAxie" id="AxieOriginPrice"> ? ETH </div>
             <div class="CategoryOwnedAxies" id="AxieOriginAmount"> --- Axies </div>
             <div class="CategoryOwnedAxies" id="AxieOriginWorth"> --- ETH </div>
+            
+            <div class="CategoryAxie" id="AxieJapanese"> Japanese Axie </div>
+            <div class="CategoryFloorPriceAxie" id="AxieJapanesePrice"> ? ETH </div>
+            <div class="CategoryOwnedAxies" id="AxieJapaneseAmount"> --- Axies </div>
+            <div class="CategoryOwnedAxies" id="AxieJapaneseWorth"> --- ETH </div>
 
             <div class="CategoryAxie" id="AxieMeo1"> Meo I Axie </div>
             <div class="CategoryFloorPriceAxie" id="AxieMeo1Price"> ? ETH </div>
