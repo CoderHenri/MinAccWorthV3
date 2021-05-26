@@ -446,6 +446,9 @@ function SelectAddress() {
     ETHWalletAxie = [];
     ETHWalletLand = [];
     ETHWalletItem = [];
+
+    document.getElementById("ETHAddress").innerHTML = txt;
+    var L = document.getElementById("lds-hourglass");
   
     var txt;
     var PopUp = prompt("Please enter your ETH (0x...) or Ronin (ronin:...) Address with your Axies:", "0x.../ronin:...");
@@ -455,17 +458,18 @@ function SelectAddress() {
         txt = PopUp;
         document.getElementById("ETHAddress").innerHTML = txt;
         GetAccountData(txt,"ETH");
+
+        L.style.display = "inline-block";
     } else if (PopUp.startsWith("ronin:") && PopUp.length == 46) {
         txt = PopUp;
         document.getElementById("ETHAddress").innerHTML = txt;
         GetAccountData(txt,"Ronin");
+
+        L.style.display = "inline-block";
     } else {
         txt = "Please enter a real ETH Address";
-
     }
-    document.getElementById("ETHAddress").innerHTML = txt;
-    var L = document.getElementById("lds-hourglass");
-    L.style.display = "inline-block";
+    
 }
 
 async function GetAccountData(ETHAddy, AddressType) {
