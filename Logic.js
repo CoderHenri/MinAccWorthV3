@@ -448,13 +448,17 @@ function SelectAddress() {
     ETHWalletItem = [];
   
     var txt;
-    var PopUp = prompt("Please enter your ETH Address with your Axies:", "0x...");
+    var PopUp = prompt("Please enter your ETH (0x...) or Ronin (ronin:...) Address with your Axies:", "0x.../ronin:...");
     if (PopUp == null || PopUp == "") {
         txt = "User cancelled the prompt!";
     } else if (PopUp.startsWith("0x") && PopUp.length == 42) {
         txt = PopUp;
         document.getElementById("ETHAddress").innerHTML = txt;
-        GetAccountData(txt);
+        GetAccountData(txt,"ETH");
+    } else if (PopUp.startsWith("ronin:") && PopUp.length == 46) {
+        txt = PopUp;
+        document.getElementById("ETHAddress").innerHTML = txt;
+        GetAccountData(txt,"Ronin");
     } else {
         txt = "Please enter a real ETH Address";
 
@@ -464,35 +468,41 @@ function SelectAddress() {
     L.style.display = "inline-block";
 }
 
-async function GetAccountData(ETHAddy) {
+async function GetAccountData(ETHAddy, AddressType) {
     var RoninAddy = null;
     var url = "https://axieinfinity.com/graphql-server-v2/graphql";
 
-    //Query Ronin address and Profile Name
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+    if(AddressType == "ETH") {
+        //Query Ronin address and Profile Name
+        await  fetch(url, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            },
+                
+            body: JSON.stringify({
+                "operationName":"GetProfileByEthAddress","variables":{"ethereumAddress":ETHAddy},
+                "query":"query GetProfileByEthAddress($ethereumAddress: String!) {\n  publicProfileWithEthereumAddress(ethereumAddress: $ethereumAddress) {\n    ...Profile\n    __typename\n  }\n}\n\nfragment Profile on PublicProfile {\n  accountId\n  name\n  addresses {\n    ...Addresses\n    __typename\n  }\n  __typename\n}\n\nfragment Addresses on NetAddresses {\n  ethereum\n  tomo\n  loom\n  ronin\n  __typename\n}\n"})
+        })
+        .then(function(response) { 
+            return response.json(); 
+        })
             
-        body: JSON.stringify({
-            "operationName":"GetProfileByEthAddress","variables":{"ethereumAddress":ETHAddy},
-            "query":"query GetProfileByEthAddress($ethereumAddress: String!) {\n  publicProfileWithEthereumAddress(ethereumAddress: $ethereumAddress) {\n    ...Profile\n    __typename\n  }\n}\n\nfragment Profile on PublicProfile {\n  accountId\n  name\n  addresses {\n    ...Addresses\n    __typename\n  }\n  __typename\n}\n\nfragment Addresses on NetAddresses {\n  ethereum\n  tomo\n  loom\n  ronin\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        try {
-            RoninAddy = data.data.publicProfileWithEthereumAddress.addresses.ronin;
-        }
-        catch {
-            RoninAddy = "Fail"
-            alert("No Ronin wallet could be found!");
-        }
-    });
+        .then(function(data) {
+            try {
+                RoninAddy = data.data.publicProfileWithEthereumAddress.addresses.ronin;
+                console.log(RoninAddy);
+            }
+            catch {
+                RoninAddy = "Fail"
+                alert("No Ronin wallet could be found!");
+            }
+        });
+    } else if(AddressType == "Ronin") {
+        RoninAddy = ETHAddy.replace("ronin:","0x");
+        console.log(RoninAddy);
+    }
 
     //NormalAxieAmount
     await  fetch(url, {
