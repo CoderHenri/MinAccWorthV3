@@ -690,7 +690,8 @@ async function GetAccountData(ETHAddy, AddressType) {
 
     //substracts all other Axies from the normal category, normal Axies need to be index 0!!
     var SubstractNormal = null;
-    for(i=1; i < ETHWalletAxie.length; i++) {
+    //5 because substracting mystics is wrong, since they already got substracted with the origins
+    for(i=1; i < 5; i++) {
         SubstractNormal = SubstractNormal + ETHWalletAxie[i].Amount;
     }
     ETHWalletAxie[0].Amount = ETHWalletAxie[0].Amount - SubstractNormal;
