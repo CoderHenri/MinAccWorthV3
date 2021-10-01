@@ -7,6 +7,8 @@ var ETHWalletItem = [];
 
 var NonEstatePlotsPrice = [];
 
+var EntireFloorPriceArray = [];
+
 var EntireEstatePrice = 0;
 var GesamtWertAxie = 0;
 var GesamtWertItem = 0;
@@ -18,6 +20,10 @@ var NodeMulti = 1.5;
 var DynamicEstateRemover = [];
 
 var brCheat = 0;
+
+
+//working alt query
+// {"operationName":"GetAxieBriefList", "query":"query GetAxieBriefList {\n  axies(auctionType: Sale, criteria: {classes:Bird, numMystic:1}, from: 0, sort: PriceAsc, size: 1) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    currentPriceUSD\n    __typename\n  }\n  __typename\n}\n"}
 
 function FormulaAlert() {
     alert("Estate Price Formula: \n Price = (Floor Price of the Land Type * (Base Plots + Plots near Water * " + RiverMulti + "\n + Plots near Roads * " + RoadMulti + " + Plots near Nodes * " + NodeMulti + ")) * 1.5 (Savannah & Forest) or 1.3 (Arctic) (Inside River) * Size of Estate \n \n XXL = 100+Plots = *3 \n XL = 50+Plots = *2.5 \n L = 36+Plots = *1.8 \n M = 25+Plots = *1.6 \n MS = 16+Plots = *1.4 \n S = 9+Plots = *1.2");
@@ -66,12 +72,11 @@ function AsyncTextReader(Place) {
 }
 
 async function LoadFloorPrices() {
-    var url = "https://axieinfinity.com/graphql-server-v2/graphql";
+    var url = "https://graphql-gateway.axieinfinity.com/graphql";
 
     await ReadTextFile();
 
-    //Query Axie Floor Data
-    //NormalAxiePrice
+    //Query Entire Axie Floor Data
     await  fetch(url, {
         method: "POST",
         headers: {
@@ -80,177 +85,38 @@ async function LoadFloorPrices() {
         },
             
         body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"region":null,"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType, $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
+            "operationName":"GetAxieBriefList",
+            "query":"query GetAxieBriefList{"+
+            "floor:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc){results{...AxieBrief}}"+
+            "origin:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"Origin\"]}){results{...AxieBrief}}"+
+            "mystic1:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[1]}){results{...AxieBrief}}"+
+            "mystic2:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[2]}){results{...AxieBrief}}"+
+            "mystic3:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[3]}){results{...AxieBrief}}"+
+            "mystic4:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[4]}){results{...AxieBrief}}"+
+            "meo1:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"MEO Corp\"]}){results{...AxieBrief}}"+
+            "meo2:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"MEO Corp II\"]}){results{...AxieBrief}}"+
+            "japan:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{region:\"japan\"}){results{...AxieBrief}}}"+
+            "fragment AxieBrief on Axie{auction{currentPrice,currentPriceUSD}}"})
     })
     .then(function(response) { 
         return response.json(); 
     })
         
     .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
+        console.log(data);
+        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.floor.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.mystic1.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.mystic2.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.mystic3.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.meo1.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.meo2.results[0].auction.currentPrice)});
 
-    //OriginAxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["Origin"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
+        console.log(FloorPrices);
     });
-
-    //JapAxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"region":"japan","classes":null,"stages":null,"numMystic":null,"pureness":null,"title":[],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //MEO1AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["MEO Corp"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //MEO2AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["MEO Corp II"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //Mystic1AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":1,"pureness":null,"title":null, "breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //Mystic2AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":2,"pureness":null,"title":null, "breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //Mystic3AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":3,"pureness":null,"title":null, "breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
-    //Mystic4AxiePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","auctionType":"Sale","owner":null,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":4,"pureness":null,"title":null, "breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    __typename\n  }\n  __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.axies.results[0].auction.currentPrice)});
-    });
-
+    
     //Query Land Floor Data
     //LandGenesisPrice
     await  fetch(url, {
@@ -474,7 +340,7 @@ function SelectAddress() {
 
 async function GetAccountData(ETHAddy, AddressType) {
     var RoninAddy = null;
-    var url = "https://axieinfinity.com/graphql-server-v2/graphql";
+    var url = "https://graphql-gateway.axieinfinity.com/graphql";
 
     if(AddressType == "ETH") {
         //Query Ronin address and Profile Name
