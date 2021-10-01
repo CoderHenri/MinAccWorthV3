@@ -87,7 +87,7 @@ async function LoadFloorPrices() {
         body: JSON.stringify({
             "operationName":"GetAxieBriefList",
             "query":"query GetAxieBriefList{"+
-            "floor:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc){results{...AxieBrief}}"+
+            "normal:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc){results{...AxieBrief}}"+
             "origin:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"Origin\"]}){results{...AxieBrief}}"+
             "mystic1:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[1]}){results{...AxieBrief}}"+
             "mystic2:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{numMystic:[2]}){results{...AxieBrief}}"+
@@ -104,7 +104,7 @@ async function LoadFloorPrices() {
         
     .then(function(data) {
         console.log(data);
-        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.floor.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.normal.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.mystic1.results[0].auction.currentPrice)});
@@ -116,7 +116,7 @@ async function LoadFloorPrices() {
 
         console.log(FloorPrices);
     });
-    
+
     //Query Land Floor Data
     //LandGenesisPrice
     await  fetch(url, {
