@@ -7,8 +7,6 @@ var ETHWalletItem = [];
 
 var NonEstatePlotsPrice = [];
 
-var EntireFloorPriceArray = [];
-
 var EntireEstatePrice = 0;
 var GesamtWertAxie = 0;
 var GesamtWertItem = 0;
