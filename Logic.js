@@ -103,7 +103,6 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        console.log(data);
         FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.normal.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].auction.currentPrice)});
@@ -113,8 +112,6 @@ async function LoadFloorPrices() {
         FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.meo1.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.meo2.results[0].auction.currentPrice)});
-
-        console.log(FloorPrices);
     });
 
     //Query entire land floor data
@@ -140,18 +137,14 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
-        console.log(data);
         FloorPrices.push({Type:"Land", Category:"Genesis", Price:PriceDisplayHuman(data.data.genesis.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Arctic", Price:PriceDisplayHuman(data.data.arctic.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Forest", Price:PriceDisplayHuman(data.data.forest.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Savannah", Price:PriceDisplayHuman(data.data.savannah.results[0].auction.currentPrice)});
-
-        console.log(FloorPrices);
     });
 
-    //Query Item Floors
-    //ItemMysticPrice
+    //Query entire item floor
     await  fetch(url, {
         method: "POST",
         headers: {
@@ -160,76 +153,25 @@ async function LoadFloorPrices() {
         },
             
         body: JSON.stringify({
-            "operationName":"GetItemBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","owner":null,"auctionType":"Sale","criteria":{"landType":[],"rarity":["Mystic"],"itemAlias":[]}},
-            "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  currentPrice\n}\n"})
+            "operationName":"GetItemBriefList",
+            "query":"query GetItemBriefList{"+
+                "mystic:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Mystic]}){results{...ItemBrief}}"+
+                "epic:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Epic]}){results{...ItemBrief}}"+
+                "rare:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Rare]}){results{...ItemBrief}}"+
+                "common:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Common]}){results{...ItemBrief}}}"+
+                "fragment ItemBrief on LandItem{auction{currentPrice}}"})
     })
     .then(function(response) { 
         return response.json(); 
     })
         
     .then(function(data) {
-        FloorPrices.push({Type:"Item", Category:"Mystic", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Epic", Price:PriceDisplayHuman(data.data.epic.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Rare", Price:PriceDisplayHuman(data.data.rare.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.common.results[0].auction.currentPrice)});
     });
 
-    //ItemEpicPrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetItemBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","owner":null,"auctionType":"Sale","criteria":{"landType":[],"rarity":["Epic"],"itemAlias":[]}},
-            "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  currentPrice\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Item", Category:"Epic", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
-    });
-
-    //ItemRarePrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetItemBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","owner":null,"auctionType":"Sale","criteria":{"landType":[],"rarity":["Rare"],"itemAlias":[]}},
-            "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  currentPrice\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Item", Category:"Rare", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
-    });
-
-    //ItemCommonPrice
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetItemBriefList","variables":{"from":0,"size":1,"sort":"PriceAsc","owner":null,"auctionType":"Sale","criteria":{"landType":[],"rarity":["Common"],"itemAlias":[]}},
-            "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  currentPrice\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.items.results[0].auction.currentPrice)});
-    });
     PriceWriter();
 }
 
