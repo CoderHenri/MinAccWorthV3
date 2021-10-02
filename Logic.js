@@ -234,7 +234,6 @@ async function GetAccountData(ETHAddy, AddressType) {
         .then(function(data) {
             try {
                 RoninAddy = data.data.publicProfileWithEthereumAddress.addresses.ronin;
-                console.log(RoninAddy);
             }
             catch {
                 RoninAddy = "Fail"
@@ -243,7 +242,6 @@ async function GetAccountData(ETHAddy, AddressType) {
         });
     } else if(AddressType == "Ronin") {
         RoninAddy = ETHAddy.replace("ronin:","0x");
-        console.log(RoninAddy);
     }
 
     //query all Axies of that address
@@ -274,7 +272,6 @@ async function GetAccountData(ETHAddy, AddressType) {
     
     //Mystics NEED to be last in the Array !!!
     .then(function(data) {
-        console.log(data);
         ETHWalletAxie.push({Type:"Axie", Category:"Normal", Amount:data.data.normal.total});
         ETHWalletAxie.push({Type:"Axie", Category:"Japanese", Amount:data.data.japan.total});
         ETHWalletAxie.push({Type:"Axie", Category:"Origin", Amount:data.data.origin.total});
@@ -284,7 +281,6 @@ async function GetAccountData(ETHAddy, AddressType) {
         ETHWalletAxie.push({Type:"Axie", Category:"Mystic2", Amount:data.data.mystic2.total});
         ETHWalletAxie.push({Type:"Axie", Category:"Mystic3", Amount:data.data.mystic3.total});
         ETHWalletAxie.push({Type:"Axie", Category:"Mystic4", Amount:data.data.mystic4.total});
-        console.log(ETHWalletAxie);
     });
 
     //substracts all other Axies from the normal category, normal Axies need to be index 0!!
@@ -302,7 +298,7 @@ async function GetAccountData(ETHAddy, AddressType) {
         SubstractOrigin = SubstractOrigin + ETHWalletAxie[j].Amount;
     }
     ETHWalletAxie[2].Amount = ETHWalletAxie[2].Amount - SubstractOrigin;
-console.log(ETHWalletAxie);
+
     //Query Land from the address
     var TotalLand = 1;
         var From = 0;
@@ -339,85 +335,33 @@ console.log(ETHWalletAxie);
             });
         }
 
-        //Query Items from the address
-        //MysticItemPrice
-        await  fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-            },
-                
-            body: JSON.stringify({
-                "operationName":"GetItemBriefList","variables":{"from":0,"size":0,"sort":"PriceAsc","owner":RoninAddy,"auctionType":"All","criteria":{"landType":[],"rarity":["Mystic"],"itemAlias":[]}},
-                "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    total\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  itemId\n  tokenType\n  tokenId\n  itemId\n  landType\n  name\n  itemAlias\n  rarity\n  figureURL\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  startingPrice\n  endingPrice\n  startingTimestamp\n  endingTimestamp\n  duration\n  timeLeft\n  currentPrice\n  currentPriceUSD\n  suggestedPrice\n  seller\n  listingIndex\n  __typename\n}\n"})
+        //Query all Items
+        //Query entire item floor
+    await  fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+            
+        body: JSON.stringify({
+            "operationName":"GetItemBriefList","variables":{"owner":RoninAddy},
+            "query":"query GetItemBriefList($owner:String) {"+
+                "mystic:items(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{rarity:[Mystic]}){total}"+
+                "epic:items(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{rarity:[Epic]}){total}"+
+                "rare:items(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{rarity:[Rare]}){total}"+
+                "common:items(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{rarity:[Common]}){total}}"
+                })
         })
         .then(function(response) { 
             return response.json(); 
         })
             
         .then(function(data) {
-            ETHWalletItem.push({Type:"Item", Category:"Mystic", Amount:data.data.items.total});
-        });
-    
-        //ItemEpicPrice
-        await  fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-            },
-                
-            body: JSON.stringify({
-                "operationName":"GetItemBriefList","variables":{"from":0,"size":0,"sort":"PriceAsc","owner":RoninAddy,"auctionType":"All","criteria":{"landType":[],"rarity":["Epic"],"itemAlias":[]}},
-                "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    total\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  itemId\n  tokenType\n  tokenId\n  itemId\n  landType\n  name\n  itemAlias\n  rarity\n  figureURL\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  startingPrice\n  endingPrice\n  startingTimestamp\n  endingTimestamp\n  duration\n  timeLeft\n  currentPrice\n  currentPriceUSD\n  suggestedPrice\n  seller\n  listingIndex\n  __typename\n}\n"})
-        })
-        .then(function(response) { 
-            return response.json(); 
-        })
-            
-        .then(function(data) {
-            ETHWalletItem.push({Type:"Item", Category:"Epic", Amount:data.data.items.total});
-        });
-    
-        //ItemRarePrice
-        await  fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-            },
-                
-            body: JSON.stringify({
-                "operationName":"GetItemBriefList","variables":{"from":0,"size":0,"sort":"PriceAsc","owner":RoninAddy,"auctionType":"All","criteria":{"landType":[],"rarity":["Rare"],"itemAlias":[]}},
-                "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    total\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  itemId\n  tokenType\n  tokenId\n  itemId\n  landType\n  name\n  itemAlias\n  rarity\n  figureURL\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  startingPrice\n  endingPrice\n  startingTimestamp\n  endingTimestamp\n  duration\n  timeLeft\n  currentPrice\n  currentPriceUSD\n  suggestedPrice\n  seller\n  listingIndex\n  __typename\n}\n"})
-        })
-        .then(function(response) { 
-            return response.json(); 
-        })
-            
-        .then(function(data) {
-            ETHWalletItem.push({Type:"Item", Category:"Rare", Amount:data.data.items.total});
-        });
-    
-        //ItemCommonPrice
-        await  fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-            },
-                
-            body: JSON.stringify({
-                "operationName":"GetItemBriefList","variables":{"from":0,"size":0,"sort":"PriceAsc","owner":RoninAddy,"auctionType":"All","criteria":{"landType":[],"rarity":["Common"],"itemAlias":[]}},
-                "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $auctionType: AuctionType, $owner: String, $criteria: ItemSearchCriteria) {\n  items(from: $from, size: $size, sort: $sort, auctionType: $auctionType, owner: $owner, criteria: $criteria) {\n    total\n    results {\n      ...ItemBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ItemBrief on LandItem {\n  itemId\n  tokenType\n  tokenId\n  itemId\n  landType\n  name\n  itemAlias\n  rarity\n  figureURL\n  auction {\n    ...AxieAuction\n    __typename\n  }\n  __typename\n}\n\nfragment AxieAuction on Auction {\n  startingPrice\n  endingPrice\n  startingTimestamp\n  endingTimestamp\n  duration\n  timeLeft\n  currentPrice\n  currentPriceUSD\n  suggestedPrice\n  seller\n  listingIndex\n  __typename\n}\n"})
-        })
-        .then(function(response) { 
-            return response.json(); 
-        })
-            
-        .then(function(data) {
-            ETHWalletItem.push({Type:"Item", Category:"Common", Amount:data.data.items.total});
+            ETHWalletItem.push({Type:"Item", Category:"Mystic", Amount:data.data.mystic.total});
+            ETHWalletItem.push({Type:"Item", Category:"Epic", Amount:data.data.epic.total});
+            ETHWalletItem.push({Type:"Item", Category:"Rare", Amount:data.data.rare.total});
+            ETHWalletItem.push({Type:"Item", Category:"Common", Amount:data.data.common.total});
         });
 
         AmountWriter();
