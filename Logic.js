@@ -246,7 +246,7 @@ async function GetAccountData(ETHAddy, AddressType) {
         console.log(RoninAddy);
     }
 
-    //NormalAxieAmount
+    //query all Axies of that address
     await  fetch(url, {
         method: "POST",
         headers: {
@@ -255,178 +255,40 @@ async function GetAccountData(ETHAddy, AddressType) {
         },
             
         body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
+            "operationName":"GetAxieBriefList","variables":{"owner":RoninAddy},
+            "query":"query GetAxieBriefList($owner:String) {"+
+                "normal:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner){total}"+
+                "origin:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{title:[\"Origin\"]}){total}"+
+                "mystic1:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{numMystic:[1]}){total}"+
+                "mystic2:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{numMystic:[2]}){total}"+
+                "mystic3:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{numMystic:[3]}){total}"+
+                "mystic4:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{numMystic:[4]}){total}"+
+                "meo1:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{title:[\"MEO Corp\"]}){total}"+
+                "meo2:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{title:[\"MEO Corp II\"]}){total}"+
+                "japan:axies(auctionType:All,from:0,size:1,sort:PriceAsc,owner:$owner,criteria:{region:\"japan\"}){total}}"
+                })
     })
     .then(function(response) { 
         return response.json(); 
     })
-        
+    
+    //Mystics NEED to be last in the Array !!!
     .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Normal", Amount:data.data.axies.total});
-    });
-
-    //JapaneseAxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"region":"japan","stages":null,"numMystic":null,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Japanese", Amount:data.data.axies.total});
-    });
-
-    //OriginAxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["Origin"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Origin", Amount:data.data.axies.total});
-    });
-
-    //MEO1AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["MEO Corp"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Meo1", Amount:data.data.axies.total});
-    });
-
-    //MEO2AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":null,"pureness":null,"title":["MEO Corp II"],"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Meo2", Amount:data.data.axies.total});
-    });
-
-    //Mystic1AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":1,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Mystic1", Amount:data.data.axies.total});
-    });
-
-    //Mystic2AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":2,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Mystic2", Amount:data.data.axies.total});
-    });
-
-    //Mystic3AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":3,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Mystic3", Amount:data.data.axies.total});
-    });
-
-    //Mystic4AxieAmount
-    await  fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-            
-        body: JSON.stringify({
-            "operationName":"GetAxieBriefList","variables":{"from":0,"size":0,"sort":"IdDesc","auctionType":"All","owner":RoninAddy,"criteria":{"parts":null,"bodyShapes":null,"classes":null,"stages":null,"numMystic":4,"pureness":null,"title":null,"breedable":null,"breedCount":null,"hp":[],"skill":[],"speed":[],"morale":[]}},
-            "query":"query GetAxieBriefList($auctionType: AuctionType,  $criteria: AxieSearchCriteria, $from: Int, $sort: SortBy, $size: Int, $owner: String) {\n  axies(auctionType: $auctionType, criteria: $criteria, from: $from, sort: $sort, size: $size, owner: $owner) {\n    total\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n    __typename\n}\n"})
-    })
-    .then(function(response) { 
-        return response.json(); 
-    })
-        
-    .then(function(data) {
-        ETHWalletAxie.push({Type:"Axie", Category:"Mystic4", Amount:data.data.axies.total});
+        console.log(data);
+        ETHWalletAxie.push({Type:"Axie", Category:"Normal", Amount:data.data.normal.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Japanese", Amount:data.data.japan.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Origin", Amount:data.data.origin.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Meo1", Amount:data.data.meo1.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Meo2", Amount:data.data.meo2.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Mystic1", Amount:data.data.mystic1.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Mystic2", Amount:data.data.mystic2.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Mystic3", Amount:data.data.mystic3.total});
+        ETHWalletAxie.push({Type:"Axie", Category:"Mystic4", Amount:data.data.mystic4.total});
+        console.log(ETHWalletAxie);
     });
 
     //substracts all other Axies from the normal category, normal Axies need to be index 0!!
+    //Mystics NEED TO BE LAST!!!
     var SubstractNormal = null;
     //5 because substracting mystics is wrong, since they already got substracted with the origins
     for(i=1; i < 5; i++) {
@@ -440,7 +302,7 @@ async function GetAccountData(ETHAddy, AddressType) {
         SubstractOrigin = SubstractOrigin + ETHWalletAxie[j].Amount;
     }
     ETHWalletAxie[2].Amount = ETHWalletAxie[2].Amount - SubstractOrigin;
-
+console.log(ETHWalletAxie);
     //Query Land from the address
     var TotalLand = 1;
         var From = 0;
