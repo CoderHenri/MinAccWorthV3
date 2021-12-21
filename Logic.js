@@ -1233,7 +1233,7 @@ async function LoadItemsFromMax() {
         AdvancedItemUIWriter(ItemListFinal[q]);
     }
 
-    document.getElementById("EntireItemAdvancedWorth").innerHTML = "Calculated Worth of all Items = " + EntireAdvancedItemCost + " ETH";
+    document.getElementById("EntireItemAdvancedWorth").innerHTML = "Calculated Worth of all Items = " + Math.round(EntireAdvancedItemCost * 10000) / 10000 + " ETH";
     GesamtWertAdvancedItem = EntireAdvancedItemCost;
     EndRechner();
 
