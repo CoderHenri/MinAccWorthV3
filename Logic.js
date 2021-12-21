@@ -10,6 +10,7 @@ var NonEstatePlotsPrice = [];
 var EntireEstatePrice = 0;
 var GesamtWertAxie = 0;
 var GesamtWertItem = 0;
+var GesamtWertAdvancedItem = 0;
 
 var RiverMulti = 2;
 var RoadMulti = 1.25;
@@ -210,8 +211,10 @@ function SelectAddress() {
     
 }
 
+var RoninAddy = null;
+
 async function GetAccountData(ETHAddy, AddressType) {
-    var RoninAddy = null;
+
     var url = "https://graphql-gateway.axieinfinity.com/graphql";
 
     if(AddressType == "ETH") {
@@ -446,6 +449,8 @@ function AmountWriter() {
 
     AddMultipliers(ETHWalletLand);
     AdvancedEstateCalc();
+
+    LoadItemsFromMax();
     
     var L = document.getElementById("lds-hourglass");
     L.style.display = "none";
@@ -550,7 +555,6 @@ function AdvancedEstateCalc() {
         DisplayEstateWriter(EstateArray[p]);
     }
     
-    EndRechner();
 }
 
 function EstateArrayMaker(Array, EstateArray) {
@@ -901,7 +905,7 @@ function EndRechner() {
     EntireEstatePrice = Math.round((EntireEstatePrice + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireLandAdvancedWorth").innerHTML = "Calculated Worth of all Landplots and Estates = " + EntireEstatePrice + " ETH";
 
-    var EntireWorthAdvanced = GesamtWertAxie + EntireEstatePrice + GesamtWertItem;
+    var EntireWorthAdvanced = GesamtWertAxie + EntireEstatePrice + GesamtWertAdvancedItem;
     EntireWorthAdvanced = Math.round((EntireWorthAdvanced + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireAccountWorthAdvanced").innerHTML = "This Address is worth " + EntireWorthAdvanced + " ETH";
 
@@ -1113,3 +1117,159 @@ function isNumeric(str) {
     return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
+
+var EntireAdvancedItemCost = 0;
+
+async function LoadItemsFromMax() {
+    alert("Geht");
+    console.log(RoninAddy);
+  
+    var urlMax = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQKI6fUk7Sr3fXSeMeY4FW0Eqn6xstTJRp2sCa0s1zv6P0DtL-xNubI0DV7kb-_TA6pqyqbLRqFA0CD/pub?output=csv";
+    var urlAxie = "https://graphql-gateway.axieinfinity.com/graphql";
+  
+    var ItemQueryAmounts = 0;
+    var ItemAccountShortList = [];
+    var ItemAccountAmounts = [];
+    var ItemListFinal = [];
+  
+    var request = new XMLHttpRequest();  
+    request.open("GET", urlMax, false);   
+    request.send(null);  
+  
+    var csvData = new Array();
+  
+    var jsonObject = request.responseText.split(/\r?\n|\r/);  //[0] sind die Kategorien!! nicht items
+  
+  
+    var KeyNameArray = [];
+    KeyNameArray.push(jsonObject[0].split(','));
+  
+    for (var i = 1; i < jsonObject.length; i++) {
+      csvData.push(jsonObject[i].split(','));
+    }
+    // Retrived data from csv file content
+    console.log(csvData);
+  
+    KeyNameArray[0][1] = "ItemAlias";
+  
+    var ItemPriceList = []
+    for(j=0; j < csvData.length; j++) {
+      ItemPriceList.push({[KeyNameArray[0][0]] : csvData[j][0],[KeyNameArray[0][1]] : csvData[j][1],[KeyNameArray[0][2]] : csvData[j][2]});
+    }
+    
+    await  fetch(urlAxie, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+          
+      body: JSON.stringify({
+        "operationName":"GetItemBriefList",
+        "variables":{"from":0,"size":100,"sort":"IdDesc","owner":RoninAddy,"auctionType":"All"},
+        "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $owner: String) {\n  items(from: $from, size: $size, sort: $sort, owner: $owner) {\n    total\n    results {\n      ...ItemBrief\n}\n}\n}\n\nfragment ItemBrief on LandItem {\n  itemAlias\n}\n"})
+    })
+    .then(function(response) { 
+        return response.json(); 
+    })
+        
+    .then(function(data) {
+        ItemQueryAmounts = data.data.items.total;
+        ItemQueryAmounts = Math.ceil(ItemQueryAmounts / 100) - 1; //minus 1, weil wir im ersten query shon die ersten 100 items haben
+        ItemAccountShortList = data.data.items.results;
+    });
+  
+    for(k=0; k<ItemQueryAmounts; k++) {
+  
+      var fromNumber = 100 + (k*100);
+      var TempArray = [];
+  
+      await  fetch(urlAxie, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+            
+        body: JSON.stringify({
+          "operationName":"GetItemBriefList",
+          "variables":{"from":fromNumber,"size":100,"sort":"IdDesc","owner":RoninAddy,"auctionType":"All"},
+          "query":"query GetItemBriefList($from: Int, $size: Int, $sort: SortBy, $owner: String) {\n  items(from: $from, size: $size, sort: $sort, owner: $owner) {\n    total\n    results {\n      ...ItemBrief\n}\n}\n}\n\nfragment ItemBrief on LandItem {\n  itemAlias\n}\n"})
+      })
+      .then(function(response) { 
+          return response.json(); 
+      })
+          
+      .then(function(data) {
+        TempArray = data.data.items.results;
+        ItemAccountShortList = ItemAccountShortList.concat(TempArray);
+      });
+    }
+  
+    //Sortierung der Arrays nach itemkürzel
+    ItemPriceList.sort((a, b) => a.ItemAlias.localeCompare(b.ItemAlias));
+    console.log(ItemPriceList);
+    ItemAccountShortList.sort((a, b) => a.itemAlias.localeCompare(b.itemAlias));
+    console.log(ItemAccountShortList);
+  
+    for(m=0; m<ItemAccountShortList.length;m++) {
+      if(m==0) {
+        ItemAccountAmounts.push({ItemAlias:ItemAccountShortList[m].itemAlias, Menge:1});
+        console.log(ItemAccountAmounts);
+      } else {
+        if(ItemAccountShortList[m].itemAlias == ItemAccountAmounts[ItemAccountAmounts.length-1].ItemAlias) {
+          ItemAccountAmounts[ItemAccountAmounts.length-1].Menge = ItemAccountAmounts[ItemAccountAmounts.length-1].Menge + 1;
+        } else {
+          ItemAccountAmounts.push({ItemAlias:ItemAccountShortList[m].itemAlias, Menge:1});
+        }
+      }
+    }
+    console.log(ItemAccountAmounts);
+    console.log(ItemPriceList);
+  
+    for(n=0; n<ItemAccountAmounts.length; n++) {
+      for(p=0; p<ItemPriceList.length; p++) {
+        if(ItemAccountAmounts[n].ItemAlias == ItemPriceList[p].ItemAlias) {
+          ItemListFinal.push({ItemName : ItemPriceList[p].Name, Menge : ItemAccountAmounts[n].Menge, ItemPreis : ItemPriceList[p].Cheapest});
+        }
+      }
+    }
+    console.log(ItemListFinal);
+
+    for(q=0; q<ItemListFinal.length; q++) {
+        AdvancedItemUIWriter(ItemListFinal[q]);
+    }
+
+    document.getElementById("EntireItemAdvancedWorth").innerHTML = "Calculated Worth of all Items = " + EntireAdvancedItemCost + " ETH";
+    GesamtWertAdvancedItem = EntireAdvancedItemCost;
+    EndRechner();
+
+}
+
+function AdvancedItemUIWriter(Data) {
+    var divItem1 = document.createElement("DIV");
+    divItem1.className = "CategoryAxie";
+    divItem1.id = "ItemName:" + Data.ItemName;
+    divItem1.textContent = Data.ItemName;
+    document.getElementById("DatacontainerItemAdvanced").appendChild(divItem1);
+
+    var divItem2 = document.createElement("DIV");
+    divItem2.className = "CategoryAxie";
+    divItem2.id = "ItemFloorPrice";
+    divItem2.textContent = Data.ItemPreis;
+    document.getElementById("DatacontainerItemAdvanced").appendChild(divItem2);
+
+    var divItem3 = document.createElement("DIV");
+    divItem3.className = "CategoryFloorPriceAxie";
+    divItem3.id = "ItemAmount";
+    divItem3.textContent = Data.Menge;
+    document.getElementById("DatacontainerItemAdvanced").appendChild(divItem3);
+
+    var divItem4 = document.createElement("DIV");
+    divItem4.className = "CategoryFloorPriceAxie";
+    divItem4.id = "Value";
+    divItem4.textContent = Math.round((Data.ItemPreis * Data.Menge) * 10000) / 10000;
+    EntireAdvancedItemCost = EntireAdvancedItemCost + Math.round((Data.ItemPreis * Data.Menge) * 10000) / 10000;
+    document.getElementById("DatacontainerItemAdvanced").appendChild(divItem4);
+}
+  
