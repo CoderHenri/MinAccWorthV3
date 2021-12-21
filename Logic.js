@@ -1121,8 +1121,6 @@ function isNumeric(str) {
 var EntireAdvancedItemCost = 0;
 
 async function LoadItemsFromMax() {
-    alert("Geht");
-    console.log(RoninAddy);
   
     var urlMax = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQKI6fUk7Sr3fXSeMeY4FW0Eqn6xstTJRp2sCa0s1zv6P0DtL-xNubI0DV7kb-_TA6pqyqbLRqFA0CD/pub?output=csv";
     var urlAxie = "https://graphql-gateway.axieinfinity.com/graphql";
@@ -1208,14 +1206,12 @@ async function LoadItemsFromMax() {
   
     //Sortierung der Arrays nach itemkürzel
     ItemPriceList.sort((a, b) => a.ItemAlias.localeCompare(b.ItemAlias));
-    console.log(ItemPriceList);
+
     ItemAccountShortList.sort((a, b) => a.itemAlias.localeCompare(b.itemAlias));
-    console.log(ItemAccountShortList);
   
     for(m=0; m<ItemAccountShortList.length;m++) {
       if(m==0) {
         ItemAccountAmounts.push({ItemAlias:ItemAccountShortList[m].itemAlias, Menge:1});
-        console.log(ItemAccountAmounts);
       } else {
         if(ItemAccountShortList[m].itemAlias == ItemAccountAmounts[ItemAccountAmounts.length-1].ItemAlias) {
           ItemAccountAmounts[ItemAccountAmounts.length-1].Menge = ItemAccountAmounts[ItemAccountAmounts.length-1].Menge + 1;
@@ -1224,8 +1220,6 @@ async function LoadItemsFromMax() {
         }
       }
     }
-    console.log(ItemAccountAmounts);
-    console.log(ItemPriceList);
   
     for(n=0; n<ItemAccountAmounts.length; n++) {
       for(p=0; p<ItemPriceList.length; p++) {
@@ -1234,7 +1228,6 @@ async function LoadItemsFromMax() {
         }
       }
     }
-    console.log(ItemListFinal);
 
     for(q=0; q<ItemListFinal.length; q++) {
         AdvancedItemUIWriter(ItemListFinal[q]);
