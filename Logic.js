@@ -193,6 +193,7 @@ function SelectAddress() {
     var PopUp = prompt("Please enter your ETH (0x...) or Ronin (ronin:...) Address with your Axies:", "0x.../ronin:...");
     if (PopUp == null || PopUp == "") {
         txt = "User cancelled the prompt!";
+        document.getElementById("ETHAddress").innerHTML = txt;
     } else if (PopUp.startsWith("0x") && PopUp.length == 42) {
         txt = PopUp;
         document.getElementById("ETHAddress").innerHTML = txt;
@@ -207,6 +208,7 @@ function SelectAddress() {
         L.style.display = "inline-block";
     } else {
         txt = "Please enter a real ETH Address";
+        document.getElementById("ETHAddress").innerHTML = txt;
     }
     
 }
