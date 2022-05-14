@@ -1274,5 +1274,5 @@ function AdvancedItemUIWriter(Data) {
 }
   
 function ShowAXSYieldRates() {
-    alert("Yield per Land per Day:\n     Savannah: 0,08 AXS/Day\n     Forest: 0,26 AXS/Day\n     Arctic: 0,74 AXS/Day\n     Mystic: 1,64 AXS/Day\n     Genesis: 32,7AXS/Day");
+    alert("Yield per Land per Day:\n     Savannah: 0,08 AXS/Day\n     Forest: 0,26 AXS/Day\n     Arctic: 0,74 AXS/Day\n     Mystic: 1,64 AXS/Day\n     Genesis: 32,7 AXS/Day");
 }
