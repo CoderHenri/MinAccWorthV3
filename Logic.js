@@ -449,6 +449,11 @@ function AmountWriter() {
     document.getElementById("EntireAccountWorth").style.display = "block";
     document.getElementById("EntireAccountWorth").innerHTML = "This Address is worth " + EntireWorth + " ETH";
 
+    let AXSYield = 0.08*SavNum + 0.26*ForNum + 0.74*ArcNum + 1.64*MysNum + 32.7*GenNum;
+    AXSYield = Math.round((AXSYield + Number.EPSILON) * 10000) / 10000
+    document.getElementById("LandAXSYield").style.display = "block";
+    document.getElementById("LandAXSYield").innerHTML = " All your Land will yield " + AXSYield + " AXS per day";
+
     AddMultipliers(ETHWalletLand);
     AdvancedEstateCalc();
 
