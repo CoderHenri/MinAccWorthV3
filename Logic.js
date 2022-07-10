@@ -136,11 +136,15 @@ async function LoadFloorPrices() {
     })
         
     .then(function(data) {
+        console.log(data);
+        try{
         FloorPrices.push({Type:"Land", Category:"Genesis", Price:PriceDisplayHuman(data.data.genesis.results[0].auction.currentPrice)});
+        } catch {FloorPrices.push({Type:"Land", Category:"Genesis", Price:0});}
         FloorPrices.push({Type:"Land", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Arctic", Price:PriceDisplayHuman(data.data.arctic.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Forest", Price:PriceDisplayHuman(data.data.forest.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Land", Category:"Savannah", Price:PriceDisplayHuman(data.data.savannah.results[0].auction.currentPrice)});
+        console.log(FloorPrices);
     });
 
     //Query entire item floor
