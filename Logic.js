@@ -20,6 +20,8 @@ var DynamicEstateRemover = [];
 
 var brCheat = 0;
 
+var StakedUnstakedArray = [{unstaked : 0, staked : 0}];
+
 
 //working alt query
 // {"operationName":"GetAxieBriefList", "query":"query GetAxieBriefList {\n  axies(auctionType: Sale, criteria: {classes:Bird, numMystic:1}, from: 0, sort: PriceAsc, size: 1) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    currentPriceUSD\n    __typename\n  }\n  __typename\n}\n"}
@@ -308,6 +310,8 @@ async function GetAccountData(ETHAddy, AddressType) {
     }
     ETHWalletAxie[2].Amount = ETHWalletAxie[2].Amount - SubstractOrigin;
 
+    /*
+    //Old, got replaced with dw Link
     //Query Land from the address
     var TotalLand = 1;
         var From = 0;
@@ -343,6 +347,61 @@ async function GetAccountData(ETHAddy, AddressType) {
                 }
             });
         }
+        */
+
+        //New land query version from dw:
+
+    await fetch("https://landplots.vercel.app/land/"+ETHAddy)
+    .then(function(response) { 
+        return response.json(); 
+    })
+        
+    .then(function(data) {
+        for(k=0; k<data.owned.length; k++) {
+            ETHWalletLand.push(data.owned[k]);
+        }
+        for(m=0; m<data.staked.length; m++) {
+            ETHWalletLand.push(data.staked[m]);
+        }
+        ETHWalletLand = ETHWalletLand.map(({
+            LandType: landType,
+            ...rest
+          }) => ({
+            landType,
+            ...rest
+        }));
+
+        for(n=0; n < data.owned.length; n++) {
+            if(data.owned[n].landType == "Genesis") {
+                StakedUnstakedArray[0].unstaked = StakedUnstakedArray[0].unstaked + 32.7;
+            } else if(data.owned[n].LandType == "Mystic") {
+                StakedUnstakedArray[0].unstaked = StakedUnstakedArray[0].unstaked + 1.64;
+            } else if(data.owned[n].LandType == "Arctic") {
+                StakedUnstakedArray[0].unstaked = StakedUnstakedArray[0].unstaked + 0.74;
+            } else if(data.owned[n].LandType == "Forest") {
+                StakedUnstakedArray[0].unstaked = StakedUnstakedArray[0].unstaked + 0.26;
+            } else if(data.owned[n].LandType == "Savannah") {
+                StakedUnstakedArray[0].unstaked = StakedUnstakedArray[0].unstaked + 0.08;
+            }
+        }
+        StakedUnstakedArray[0].unstaked = Math.round((StakedUnstakedArray[0].unstaked + Number.EPSILON) * 10000) / 10000;
+
+        for(o=0; o < data.staked.length; o++) {
+            if(data.staked[o].LandType == "Genesis") {
+                StakedUnstakedArray[0].staked = StakedUnstakedArray[0].staked + 32.7;
+            } else if(data.staked[o].LandType == "Mystic") {
+                StakedUnstakedArray[0].staked = StakedUnstakedArray[0].staked + 1.64;
+            } else if(data.staked[o].LandType == "Arctic") {
+                StakedUnstakedArray[0].staked = StakedUnstakedArray[0].staked + 0.74;
+            } else if(data.staked[o].LandType == "Forest") {
+                StakedUnstakedArray[0].staked = StakedUnstakedArray[0].staked + 0.26;
+            } else if(data.staked[o].LandType == "Savannah") {
+                StakedUnstakedArray[0].staked = StakedUnstakedArray[0].staked + 0.08;
+            }
+        }
+        StakedUnstakedArray[0].staked = Math.round((StakedUnstakedArray[0].staked + Number.EPSILON) * 10000) / 10000;
+        console.log(StakedUnstakedArray);
+    });
 
         //Query all Items
         //Query entire item floor
@@ -435,28 +494,33 @@ function AmountWriter() {
     //Adding up all the values for a total
 
     var AxieWorth = parseFloat(document.getElementById("AxieNormalWorth").innerHTML) + parseFloat(document.getElementById("AxieJapaneseWorth").innerHTML) + parseFloat(document.getElementById("AxieOriginWorth").innerHTML) + parseFloat(document.getElementById("AxieMeo1Worth").innerHTML) + parseFloat(document.getElementById("AxieMeo2Worth").innerHTML) + parseFloat(document.getElementById("AxieMystic1Worth").innerHTML) + parseFloat(document.getElementById("AxieMystic2Worth").innerHTML) + parseFloat(document.getElementById("AxieMystic3Worth").innerHTML) + parseFloat(document.getElementById("AxieMystic4Worth").innerHTML);
-    AxieWorth = Math.round((AxieWorth + Number.EPSILON) * 10000) / 10000
+    AxieWorth = Math.round((AxieWorth + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireAxieWorth").innerHTML = "Calculated Worth of all Axies = " + AxieWorth + " ETH";
     GesamtWertAxie = AxieWorth;
 
     var LandWorth = parseFloat(document.getElementById("LandGenesisWorth").innerHTML) + parseFloat(document.getElementById("LandMysticWorth").innerHTML) + parseFloat(document.getElementById("LandArcticWorth").innerHTML) + parseFloat(document.getElementById("LandForestWorth").innerHTML) + parseFloat(document.getElementById("LandSavannahWorth").innerHTML);
-    LandWorth = Math.round((LandWorth + Number.EPSILON) * 10000) / 10000
+    LandWorth = Math.round((LandWorth + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireLandWorth").innerHTML = "Calculated Worth of all Landplots = " + LandWorth + " ETH";
 
     var ItemWorth = parseFloat(document.getElementById("ItemMysticWorth").innerHTML) + parseFloat(document.getElementById("ItemEpicWorth").innerHTML) + parseFloat(document.getElementById("ItemRareWorth").innerHTML) + parseFloat(document.getElementById("ItemCommonWorth").innerHTML);
-    ItemWorth = Math.round((ItemWorth + Number.EPSILON) * 10000) / 10000
+    ItemWorth = Math.round((ItemWorth + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireItemWorth").innerHTML = "Calculated Worth of all Items = " + ItemWorth + " ETH";
     GesamtWertItem = ItemWorth;
 
     var EntireWorth = AxieWorth + LandWorth + ItemWorth;
-    EntireWorth = Math.round((EntireWorth + Number.EPSILON) * 10000) / 10000
+    EntireWorth = Math.round((EntireWorth + Number.EPSILON) * 10000) / 10000;
     document.getElementById("EntireAccountWorth").style.display = "block";
     document.getElementById("EntireAccountWorth").innerHTML = "This Address is worth " + EntireWorth + " ETH";
 
     let AXSYield = 0.08*SavNum + 0.26*ForNum + 0.74*ArcNum + 1.64*MysNum + 32.7*GenNum;
-    AXSYield = Math.round((AXSYield + Number.EPSILON) * 10000) / 10000
+    AXSYield = Math.round((AXSYield + Number.EPSILON) * 10000) / 10000;
     document.getElementById("LandAXSYield").style.display = "block";
-    document.getElementById("LandAXSYield").innerHTML = " All your Land will yield " + AXSYield + " AXS per day";
+    if(StakedUnstakedArray[0].unstaked != 0) {
+        document.getElementById("LandAXSYield").innerHTML = " Your Land is currently generating " + StakedUnstakedArray[0].staked + " AXS per day\nwhile your unstaked Land would make " + StakedUnstakedArray[0].unstaked + " AXS per day";
+    } else {
+        document.getElementById("LandAXSYield").innerHTML = " Your Land is currently generating " + StakedUnstakedArray[0].staked + " AXS per day";
+    }
+    
 
     AddMultipliers(ETHWalletLand);
     AdvancedEstateCalc();
