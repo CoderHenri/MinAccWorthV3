@@ -22,7 +22,6 @@ var brCheat = 0;
 
 var StakedUnstakedArray = [{unstaked : 0, staked : 0}];
 
-
 //working alt query
 // {"operationName":"GetAxieBriefList", "query":"query GetAxieBriefList {\n  axies(auctionType: Sale, criteria: {classes:Bird, numMystic:1}, from: 0, sort: PriceAsc, size: 1) {\n    results {\n      ...AxieBrief\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment AxieBrief on Axie {\n  auction {\n    currentPrice\n    currentPriceUSD\n    __typename\n  }\n  __typename\n}\n"}
 
