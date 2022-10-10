@@ -73,7 +73,7 @@ function AsyncTextReader(Place) {
 }
 
 async function LoadFloorPrices() {
-    var url = "https://graphql-gateway.axieinfinity.com/graphql";
+    var url = "https://henri.ix.ronin.rest/https://graphql-gateway.axieinfinity.com/graphql";
 
     await ReadTextFile();
 
@@ -223,7 +223,7 @@ var RoninAddy = null;
 
 async function GetAccountData(ETHAddy, AddressType) {
 
-    var url = "https://graphql-gateway.axieinfinity.com/graphql";
+    var url = "https://henri.ix.ronin.rest/https://graphql-gateway.axieinfinity.com/graphql";
 
     if(AddressType == "ETH") {
         //Query Ronin address and Profile Name
@@ -1198,7 +1198,7 @@ var EntireAdvancedItemCost = 0;
 async function LoadItemsFromMax() {
   
     var urlMax = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQKI6fUk7Sr3fXSeMeY4FW0Eqn6xstTJRp2sCa0s1zv6P0DtL-xNubI0DV7kb-_TA6pqyqbLRqFA0CD/pub?output=csv";
-    var urlAxie = "https://graphql-gateway.axieinfinity.com/graphql";
+    var urlAxie = "https://henri.ix.ronin.rest/https://graphql-gateway.axieinfinity.com/graphql";
   
     var ItemQueryAmounts = 0;
     var ItemAccountShortList = [];
