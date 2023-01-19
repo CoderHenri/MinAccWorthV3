@@ -105,15 +105,15 @@ async function LoadFloorPrices() {
         
     .then(function(data) {
         console.log(data);
-        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.normal.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.mystic1.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.mystic2.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.mystic3.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.meo1.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.meo2.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.normal.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.mystic1.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.mystic2.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.mystic3.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.meo1.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.meo2.results[0].order.currentPrice)});
     });
 
     //Query entire land floor data
