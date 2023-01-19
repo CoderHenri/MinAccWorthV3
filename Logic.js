@@ -99,10 +99,12 @@ async function LoadFloorPrices() {
                 "fragment AxieBrief on Axie{auction{currentPrice,currentPriceUSD}}"})
     })
     .then(function(response) { 
+        console.log(response);
         return response.json(); 
     })
         
     .then(function(data) {
+        console.log(data);
         FloorPrices.push({Type:"Axie", Category:"Normal", Price:PriceDisplayHuman(data.data.normal.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Japanese", Price:PriceDisplayHuman(data.data.japan.results[0].auction.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Origin", Price:PriceDisplayHuman(data.data.origin.results[0].auction.currentPrice)});
