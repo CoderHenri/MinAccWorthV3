@@ -96,7 +96,7 @@ async function LoadFloorPrices() {
                 "meo1:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"MEO Corp\"]}){results{...AxieBrief}}"+
                 "meo2:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{title:[\"MEO Corp II\"]}){results{...AxieBrief}}"+
                 "japan:axies(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{region:\"japan\"}){results{...AxieBrief}}}"+
-                "fragment AxieBrief on Axie{order{currentPrice,currentPriceUSD}}"})
+                "fragment AxieBrief on Axie{order{currentPrice,currentPriceUsd}}"})
     })
     .then(function(response) { 
         console.log(response);
