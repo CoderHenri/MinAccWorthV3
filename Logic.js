@@ -111,7 +111,11 @@ async function LoadFloorPrices() {
         FloorPrices.push({Type:"Axie", Category:"Mystic1", Price:PriceDisplayHuman(data.data.mystic1.results[0].order.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Mystic2", Price:PriceDisplayHuman(data.data.mystic2.results[0].order.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Mystic3", Price:PriceDisplayHuman(data.data.mystic3.results[0].order.currentPrice)});
-        FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].order.currentPrice)});
+        try{
+            FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:PriceDisplayHuman(data.data.mystic4.results[0].order.currentPrice)});
+        } catch {
+            FloorPrices.push({Type:"Axie", Category:"Mystic4", Price:0});
+        }
         FloorPrices.push({Type:"Axie", Category:"Meo1", Price:PriceDisplayHuman(data.data.meo1.results[0].order.currentPrice)});
         FloorPrices.push({Type:"Axie", Category:"Meo2", Price:PriceDisplayHuman(data.data.meo2.results[0].order.currentPrice)});
     });
@@ -132,7 +136,7 @@ async function LoadFloorPrices() {
                 "arctic:lands(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{landType:[Arctic]}){results{...LandBriefV2}}"+
                 "forest:lands(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{landType:[Forest]}){results{...LandBriefV2}}"+
                 "savannah:lands(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{landType:[Savannah]}){results{...LandBriefV2}}}"+
-                "fragment LandBriefV2 on LandPlot{auction{currentPrice}}"})
+                "fragment LandBriefV2 on LandPlot{order{currentPrice}}"})
     })
     .then(function(response) { 
         return response.json(); 
@@ -141,12 +145,12 @@ async function LoadFloorPrices() {
     .then(function(data) {
         console.log(data);
         try{
-        FloorPrices.push({Type:"Land", Category:"Genesis", Price:PriceDisplayHuman(data.data.genesis.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Land", Category:"Genesis", Price:PriceDisplayHuman(data.data.genesis.results[0].order.currentPrice)});
         } catch {FloorPrices.push({Type:"Land", Category:"Genesis", Price:0});}
-        FloorPrices.push({Type:"Land", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Land", Category:"Arctic", Price:PriceDisplayHuman(data.data.arctic.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Land", Category:"Forest", Price:PriceDisplayHuman(data.data.forest.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Land", Category:"Savannah", Price:PriceDisplayHuman(data.data.savannah.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Land", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Land", Category:"Arctic", Price:PriceDisplayHuman(data.data.arctic.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Land", Category:"Forest", Price:PriceDisplayHuman(data.data.forest.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Land", Category:"Savannah", Price:PriceDisplayHuman(data.data.savannah.results[0].order.currentPrice)});
         console.log(FloorPrices);
     });
 
@@ -165,17 +169,17 @@ async function LoadFloorPrices() {
                 "epic:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Epic]}){results{...ItemBrief}}"+
                 "rare:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Rare]}){results{...ItemBrief}}"+
                 "common:items(auctionType:Sale,from:0,size:1,sort:PriceAsc,criteria:{rarity:[Common]}){results{...ItemBrief}}}"+
-                "fragment ItemBrief on LandItem{auction{currentPrice}}"})
+                "fragment ItemBrief on LandItem{order{currentPrice}}"})
     })
     .then(function(response) { 
         return response.json(); 
     })
         
     .then(function(data) {
-        FloorPrices.push({Type:"Item", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Item", Category:"Epic", Price:PriceDisplayHuman(data.data.epic.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Item", Category:"Rare", Price:PriceDisplayHuman(data.data.rare.results[0].auction.currentPrice)});
-        FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.common.results[0].auction.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Mystic", Price:PriceDisplayHuman(data.data.mystic.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Epic", Price:PriceDisplayHuman(data.data.epic.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Rare", Price:PriceDisplayHuman(data.data.rare.results[0].order.currentPrice)});
+        FloorPrices.push({Type:"Item", Category:"Common", Price:PriceDisplayHuman(data.data.common.results[0].order.currentPrice)});
     });
 
     PriceWriter();
