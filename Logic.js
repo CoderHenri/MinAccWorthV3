@@ -356,7 +356,7 @@ async function GetAccountData(ETHAddy, AddressType) {
 
         //New land query version from dw:
 
-    await fetch("https://landplots.vercel.app/land/"+ETHAddy)
+    await fetch("https://landplots.vercel.app/land/"+RoninAddy)
     .then(function(response) { 
         return response.json(); 
     })
